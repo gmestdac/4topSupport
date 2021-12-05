@@ -16,6 +16,7 @@ argParser.add_argument('--filterPlot',     action='store',      default=None)
 argParser.add_argument('--noZgCorr',       action='store_true', default=False,       help='do not correct Zg shape and yield')
 argParser.add_argument('--runSys',         action='store_true', default=False)
 argParser.add_argument('--showSys',        action='store_true', default=False)
+argParser.add_argument('--debugFrac',      action='store',      default=0, type=int)
 argParser.add_argument('--post',           action='store_true', default=False)
 argParser.add_argument('--editInfo',       action='store_true', default=False)
 argParser.add_argument('--isChild',        action='store_true', default=False)
@@ -26,22 +27,26 @@ argParser.add_argument('--dumpArrays',     action='store_true', default=False)
 args = argParser.parse_args()
 
 
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 import pdb
 log = getLogger(args.logLevel)
 
 if args.noZgCorr: args.tag += '-noZgCorr'
+
+if args.debugFrac:
+  args.tag += 'debugOneIn' + str(args.debugFrac)
+
 #
 # Check git and edit the info file
 #
-from ttg.tools.helpers import editInfo, plotDir, updateGitInfo, deltaPhi, deltaR, lumiScales, lumiScalesRounded
+from topSupport.tools.helpers import editInfo, plotDir, updateGitInfo, deltaPhi, deltaR, lumiScales, lumiScalesRounded
 if args.editInfo:
   editInfo(os.path.join(plotDir, args.tag))
 
 #
 # Systematics
 #
-from ttg.plots.systematics import getReplacementsForStack, systematics, linearSystematics, applySysToTree, applySysToString, applySysToReduceType, showSysList, getSigmaSystFlat, getSigmaSystHigh, correlations, showSysListRunII, addYearLumiUnc, getBWrew
+# from topSupport.plots.systematics import getReplacementsForStack, systematics, linearSystematics, applySysToTree, applySysToString, applySysToReduceType, showSysList, getSigmaSystFlat, getSigmaSystHigh, correlations, showSysListRunII, addYearLumiUnc, getBWrew
 
 #
 # Submit subjobs
@@ -59,8 +64,8 @@ for f in sorted(glob.glob("../samples/data/*.stack")):
 
 if not args.isChild:
   updateGitInfo()
-  from ttg.tools.jobSubmitter import submitJobs
-  from ttg.plots.variations   import getVariations
+  from topSupport.tools.jobSubmitter import submitJobs
+  from topSupport.plots.variations   import getVariations
   # if args.runSys and not os.path.exists(os.path.join(plotDir, args.year, args.tag, args.channel, args.selection, 'yield.pkl')):
   #   log.info('Make sure the nominal plots exist before running systematics')
   #   exit(0)
@@ -76,10 +81,10 @@ if not args.isChild:
 # Initializing
 #
 import ROOT
-from ttg.plots.plot                   import Plot, xAxisLabels, fillPlots, addPlots, customLabelSize, copySystPlots
-from ttg.plots.plot2D                 import Plot2D, add2DPlots, normalizeAlong, xAxisLabels2D, yAxisLabels2D
-from ttg.plots.cutInterpreter         import cutStringAndFunctions
-from ttg.samples.Sample               import createStack
+from topSupport.plots.plot                   import Plot, xAxisLabels, fillPlots, addPlots, customLabelSize, copySystPlots
+from topSupport.plots.plot2D                 import Plot2D, add2DPlots, normalizeAlong, xAxisLabels2D, yAxisLabels2D
+from topSupport.plots.cutInterpreter         import cutStringAndFunctions
+from topSupport.samples.Sample               import createStack
 
 
 from math import pi
@@ -89,7 +94,7 @@ ROOT.gROOT.SetBatch(True)
 
 # reduce string comparisons in loop --> store as booleans
 noWeight    = args.tag.count('noWeight')
-normalize   = any(args.tag.count(x) for x in ['sigmaIetaIeta', 'randomConeCheck', 'splitOverlay', 'compareWithTT', 'compareTTSys', 'compareTTGammaSys', 'normalize', 'IsoRegTTDil', 'IsoFPTTDil'])
+normalize   = any(args.tag.count(x) for x in ['sigmaIetaIeta', 'randomConeCheck', 'splitOverlay', 'compareWithTT', 'compareTTSys', 'comparetopSupportammaSys', 'normalize', 'IsoRegTTDil', 'IsoFPTTDil'])
 onlyMC = args.tag.count('onlyMC')
 
 
@@ -110,15 +115,14 @@ if args.year == 'all':
       log.warning('stackfile ' + stackFile + '_' + year + '.stack is missing, exiting')
       exit(0)
 
-tupleFiles = {y : os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_' + y + '.conf') for y in ['2016', '2017', '2018', 'comb']}
+tupleFiles = {y : os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_' + y + '.conf') for y in ['2016', '2017', '2018', 'comb']}
 
 # when running over all years, just initialise the plots with the stack for 16
 stack = createStack(tuplesFile   = os.path.expandvars(tupleFiles['2016' if args.year == 'all' else args.year]),
-                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/' + stackFile + '_' + ('2016' if args.year == 'all' else args.year) + '.stack'),
+                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/' + stackFile + '_' + ('2016' if args.year == 'all' else args.year) + '.stack'),
                     channel      = args.channel,
-                    replacements = getReplacementsForStack(args.sys, args.year)
+                    # replacements = getReplacementsForStack(args.sys, args.year)
                     )
-
 
 
 #
@@ -135,7 +139,7 @@ modTexLeg = []
 Plot.setDefaults(stack=stack, texY = ('(1/N) dN/dx' if normalize else 'Events / bin'), modTexLeg = modTexLeg )
 Plot2D.setDefaults(stack=stack)
 
-from ttg.plots.plotHelpers  import *
+from topSupport.plots.plotHelpers  import *
 
 # Plot definitions (allow long lines, and switch off unneeded lambda warning, because lambdas are needed)
 def makePlotList():
@@ -152,23 +156,57 @@ def makePlotList():
   plotList.append(Plot('l2_pt',                      'p_{T}(l_{2}) [GeV]',                    lambda c : c.l2_pt,                                            (20, 20, 220)))
   plotList.append(Plot('l2_eta',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 (15, 0, 2.4)))
 
+  plotList.append(Plot('l1_pt_small',                      'p_{T}(l_{1}) [GeV]',                    lambda c : c.l1_pt,                                            (100, 20, 120)))
+  plotList.append(Plot('l1_eta_small',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 (80, 0, 2.4)))
+  plotList.append(Plot('l2_pt_small',                      'p_{T}(l_{2}) [GeV]',                    lambda c : c.l2_pt,                                            (100, 20, 120)))
+  plotList.append(Plot('l2_eta_small',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 (80, 0, 2.4)))
+
+
   plotList.append(Plot('l1_eta_EB',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                     [0., 1.479, 2.4], histModifications=xAxisLabels(['Barrel', 'Endcap']) ))
   plotList.append(Plot('l2_eta_EB',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                     [0., 1.479, 2.4], histModifications=xAxisLabels(['Barrel', 'Endcap']) ))
+
+  plotList.append(Plot('dl_mass',                    'm(ll) [GeV]',                           lambda c : c.mll,                                              (20, 0, 200)))
+  plotList.append(Plot('dl_mass_small',              'm(ll) [GeV]',                           lambda c : c.mll,                                              (100, 0, 200)))
+  plotList.append(Plot('dl_mass_smaller',             'm(ll) [GeV]',                           lambda c : c.mll,                                             (400, 0, 200)))
+
+
+  plotList.append(Plot('l1_chargeCheck',   '',        lambda c : (c._lCharge[c.l1] == c._lMatchCharge[c.l1]) ,         (2, 0, 2), histModifications=xAxisLabels(['charge misId', 'correct charge'])))
+  plotList.append(Plot('l2_chargeCheck',   '',        lambda c : (c._lCharge[c.l2] == c._lMatchCharge[c.l2]) ,         (2, 0, 2), histModifications=xAxisLabels(['charge misId', 'correct charge'])))
+
+
+  plotList.append(Plot('nlepSel',                      'Number of selected leptons',                        lambda c : c.nLepSel,                                      (8, -.5, 7.5)))
+
+
+  # plotList.append(Plot('njets',                      'Number of jets',                        lambda c : c.njets,                                            (8, -.5, 7.5)))
+  # plotList.append(Plot('nbtag',                      'Number of b-tagged jets',               lambda c : c.ndbjets,                                          (4, -.5, 3.5)))0
+  # plotList.append(Plot('j1_pt',                      'p_{T}(j_{1}) [GeV]',                    lambda c : c._jetSmearedPt[c.j1],                              (30, 30, 330)))
+  # plotList.append(Plot('j1_eta',                     '|#eta|(j_{1})',                         lambda c : abs(c._jetEta[c.j1]),                               (15, 0, 2.4)))
+  # plotList.append(Plot('j2_pt',                      'p_{T}(j_{2}) [GeV]',                    lambda c : c._jetSmearedPt[c.j2],                              (30, 30, 330)))
+  # plotList.append(Plot('j2_eta',                     '|#eta|(j_{2})',                         lambda c : abs(c._jetEta[c.j2]),                               (15, 0, 2.4)))
 
 
   plotList.append(Plot2D('eta2D',          '|#eta|(l_{A})',           lambda c :  max(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),               (8, 0, 2.4),          '|#eta|(l_{B})',          lambda c : min(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),              (8, 0, 2.4)))
   plotList.append(Plot2D('eta2DEB',        '|#eta|(l_{A})',           lambda c :  max(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),               [0., 1.479, 2.4],     '|#eta|(l_{B})',          lambda c : min(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),              [0., 1.479, 2.4]))
   plotList.append(Plot2D('pt2D',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               (6, 20, 140),          'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              (6, 20, 140)))
 
+  plotList.append(Plot2D('ptEtaTTbinning_l1',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
+  plotList.append(Plot2D('ptEtaTTbinning_l2',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
 
-  # plotList.append(Plot2D('nl_nll',          'nl',           lambda c : c.nl,               (6, 0, 6),          'nll',          lambda c : c.nll,              (6, 0, 6)))
+  plotList.append(Plot2D('ptEtaTTbinning_l1_B',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20., 25.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
+  plotList.append(Plot2D('ptEtaTTbinning_l2_B',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20., 25.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
 
-  # plotList.append(Plot2D('nl_nll_ynorm',          'nl',           lambda c : c.nl,               (6, 0, 6),          'nll',          lambda c : c.nll,              (6, 0, 6), histModifications=normalizeAlong('y')))
 
+  plotList.append(Plot2D('pt2D_A',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 60., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 40., 60.]))
+  plotList.append(Plot2D('pt2D_B',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 40., 60., 80. ],                   'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 40., 50.]))
+  plotList.append(Plot2D('pt2D_C',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 30, 40., 50., 60., 70., 80. ],     'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 40., 50.]))
+  plotList.append(Plot2D('pt2D_D',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 30, 40., 50., 60., 70., 80. ],     'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 25., 30., 35., 40., 45., 50., 60.]))
+  plotList.append(Plot2D('pt2D_E',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 40., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 60.]))
+  plotList.append(Plot2D('pt2D_F',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 50., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 35., 60.]))
+  plotList.append(Plot2D('pt2D_G',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 45., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 32., 60.]))
 
-  # plotList.append(Plot('photon_chargedIso',          'chargedIso(#gamma) [GeV]',         lambda c : (c._phChargedIsolation[c.ph] if not c.data else c._phRandomConeChargedIsolation[c.ph]),               (20, 0, 20)))
-  # plotList.append(Plot('photon_chargedIso_small',    'chargedIso(#gamma) [GeV]',         lambda c : (c._phChargedIsolation[c.ph] if not c.data else c._phRandomConeChargedIsolation[c.ph]),               (80, 0, 20)))
-  # plotList.append(Plot('photon_relChargedIso',       'chargedIso(#gamma)/p_{T}(#gamma)', lambda c : (c._phChargedIsolation[c.ph] if not c.data else c._phRandomConeChargedIsolation[c.ph])/c.ph_pt, (20, 0, 2)))
+  plotList.append(Plot2D('pt2D_H',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 55., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 37., 60.]))
+  plotList.append(Plot2D('pt2D_HA',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 50., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 37., 60.]))
+  plotList.append(Plot2D('pt2D_HB',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 52., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 37., 60.]))
 
   # pylint: enable=C0301
 
@@ -194,7 +232,14 @@ if args.tag.lower().count('pretend'):
   lumiScalesRounded['2016'] = lumiScalesRounded['RunII']
 
 
-from ttg.tools.style import drawLumi, drawLumi2D, setDefault, ttgGeneralStyle
+
+lumiScalesRounded['2016pre']  = 19.5
+lumiScalesRounded['2016post'] = 16.8
+
+
+from topSupport.tools.style import drawLumi, drawLumi2D, setDefault, ttgGeneralStyle
+from topSupport.plots.chamidWeight import chamidWeight
+from topSupport.plots.SSOSweight import ssosWeight
 
 setDefault()
 ttgGeneralStyle()
@@ -202,9 +247,9 @@ ttgGeneralStyle()
 for year in years:
   plots = makePlotList()
   stack = createStack(tuplesFile   = os.path.expandvars(tupleFiles[year]),
-                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/' + stackFile + '_' + year + '.stack'),
+                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/' + stackFile + '_' + year + '.stack'),
                     channel      = args.channel,
-                    replacements = getReplacementsForStack(args.sys, args.year)
+                    # replacements = getReplacementsForStack(args.sys, args.year)
                     )
 
   # link the newly loaded samples to their respective existing histograms in the plots
@@ -238,35 +283,73 @@ for year in years:
   if not args.showSys and plotsToFill:
 
     # reduceType = 'chaB'
-    reduceType = 'chaC'
+
+    reduceType = 'chaF'
+
+    # reduceType = 'chaD'
+    # if args.year == '2017' or args.year == '2016':
+    #   reduceType = 'chaE'
     # reduceType = 'chaBnoTCha'
     
     log.info("using reduceType " + reduceType)
 
-    from ttg.plots.photonCategories import checkMatch, checkSigmaIetaIeta, checkChgIso
+
+    chamidEst = chamidWeight(year)
 
     for sample in sum(stack, []):
+      ddEst = ssosWeight(year, sample.isData)
 
-      cutString, passingFunctions = cutStringAndFunctions(args.selection, args.channel)
+      chamidEstimate        = sample.texName.count('chamidEstimate')
+      ddEstimate            = sample.texName.count('ddEstimate')
+
+      if chamidEstimate or ddEstimate:
+        selection = args.selection.replace('SS', 'OS')
+      else:
+        selection = args.selection
+
+      cutString, passingFunctions = cutStringAndFunctions(selection, args.channel)
+
+      # cutString, passingFunctions = cutStringAndFunctions(args.selection, args.channel)
 
 
       c = sample.initTree(reducedType = reduceType)
       c.year = sample.name[:4] if year == "comb" else year
-      lumiScale = lumiScales[c.year]
+      if c.year == '2016':
+        if sample.name.lower().count('post'):
+          lumiScale = 16.8
+        elif sample.name.lower().count('pre'):
+          lumiScale = 19.5
+        else:
+          log.warning('2016 sample with no pre/post designation, exiting')
+          exit()
+      else:
+        lumiScale = lumiScales[c.year]
       c.data = sample.isData
 
 
-      for i in sample.eventLoop(cutString):
+      for i in sample.eventLoop(cutString, debugFrac = args.debugFrac):
         if c.GetEntry(i) < 0:
           log.info('corrupt basket in ' + str(c.GetFile()) )
 
         if not passingFunctions(c): continue
 
         
+        if chamidEstimate:
+          chamidEstWeight = chamidEst.getWeight(c.l1_pt, c._lEta[c.l1], c.l2_pt, c._lEta[c.l2])
+        else:
+          chamidEstWeight = 1.
 
-        if sample.isData: eventWeight = 1.
+        if ddEstimate:
+          ddEstWeight = ddEst.getWeight(c.l1_pt, c._lEtaSC[c.l1], c.l2_pt, c._lEtaSC[c.l2])
+        else:
+          ddEstWeight = 1.
+
+
+        if sample.isData: eventWeight = 1. * chamidEstWeight * ddEstWeight
         elif noWeight:      eventWeight = 1.
-        else:             eventWeight = c.genWeight*lumiScale
+        else:             eventWeight = c.genWeight*lumiScale * chamidEstWeight * ddEstWeight
+        # log.info(c.genWeight)
+        # log.info(lumiScale)
 
 
         # else:             eventWeight = c.genWeight*c.puWeight*c.lWeight*c.lTrackWeight*c.phWeight*c.bTagWeight*c.triggerWeight*prefireWeight*lumiScale*c.ISRWeight*c.FSRWeight*c.PVWeight*estWeight*zgw
@@ -292,6 +375,12 @@ for year in years:
     continue #don't draw individual years
 
 
+
+  if args.tag.lower().count('pre'): VFPcase = 'pre'
+  elif args.tag.lower().count('post'): VFPcase = 'post'
+  else: VFPcase = ''
+
+
   #
   # Drawing the plots
   #
@@ -301,12 +390,15 @@ for year in years:
     if not args.showSys:
       plot.saveToCache(os.path.join(plotDir, year, args.tag, args.channel, args.selection), args.sys)
 
+
+
+  
   #
   # set some extra arguments for the plots
   #
     if not args.sys or args.showSys:
       extraArgs = {}
-      normalizeToMC = [False, True] if (args.channel != 'noData' and not onlyMC) else [False]
+      normalizeToMC = [False, True] if (args.channel != 'noData' and not onlyMC and not args.tag.count('norat')) else [False]
       if args.tag.count('onlydata'):
         extraArgs['resultsDir']  = os.path.join(plotDir, year, args.tag, args.channel, args.selection)
         extraArgs['systematics'] = ['sideBandUnc']
@@ -354,7 +446,7 @@ for year in years:
                     logY              = logY,
                     sorting           = False,
                     yRange            = yRange if yRange else (0.003 if logY else 0.0001, "auto"),
-                    drawObjects       = drawLumi(None, lumiScalesRounded[year], isOnlySim=(args.channel=='noData' or onlyMC)),
+                    drawObjects       = drawLumi(None, lumiScalesRounded[year + VFPcase ], isOnlySim=(args.channel=='noData' or onlyMC)),
                     **extraArgs
           )
           extraArgs['saveGitInfo'] = False
@@ -366,12 +458,13 @@ for year in years:
       if not args.showSys:
         plot.applyMods()
         plot.saveToCache(os.path.join(plotDir, year, args.tag, args.channel, args.selection), args.sys)
-      for logY in [False, True]:
+      for logX in [False, True]:
         for option in ['SCAT', 'COLZ', 'COLZ TEXT']:
-          plot.draw(plot_directory = os.path.join(plotDir, year, args.tag, args.channel + ('-log' if logY else ''), args.selection, option),
+          plot.draw(plot_directory = os.path.join(plotDir, year, args.tag, args.channel + ('-log' if logX else ''), args.selection, option),
                     logZ           = False,
+                    logX           = logX,
                     drawOption     = option,
-                    drawObjects    = drawLumi2D(None, lumiScalesRounded[year], isOnlySim=(args.channel=='noData' or onlyMC)))
+                    drawObjects    = drawLumi2D(None, lumiScalesRounded[year + VFPcase ], isOnlySim=(args.channel=='noData' or onlyMC)))
                     
   if args.dumpArrays: 
     dumpArrays["info"] = " ".join(s for s in [args.year, args.selection, args.channel, args.tag, args.sys] if s) 
@@ -420,7 +513,7 @@ for plot in totalPlots: # 1D plots
 
 
     extraArgs = {}
-    normalizeToMC = [False, True] if (args.channel != 'noData' and not onlyMC) else [False]
+    normalizeToMC = [False, True] if (args.channel != 'noData' and not onlyMC and not args.tag.count('norat')) else [False]
     if args.tag.count('onlydata'):
       extraArgs['resultsDir']  = os.path.join(plotDir, args.year, args.tag, args.channel, args.selection)
       extraArgs['systematics'] = ['sideBandUnc']

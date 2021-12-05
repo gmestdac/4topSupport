@@ -1,0 +1,9 @@
+-- Data
+DoubleMuon_2018                 data:mumu,SF,all      errorStyle    kBlack                   isMuMu
++SingleMuon_2018
+
+EGamma_2018                   data:ee,SF,all        errorStyle    kBlack                   isEE
+
+MuonEG_2018                     data:emu,all          errorStyle    kBlack                   isEMu
++SingleMuon_2018
++SingleElectron_2018

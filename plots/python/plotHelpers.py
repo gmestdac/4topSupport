@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from ttg.tools.helpers import deltaR, deltaPhi
+from topSupport.tools.helpers import deltaR, deltaPhi
 import ROOT
 import numpy
 

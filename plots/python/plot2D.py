@@ -1,13 +1,13 @@
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger()
 
 
 import ROOT, os, numpy
 import cPickle as pickle
-from ttg.tools.helpers import copyIndexPHP, copyGitInfo, addHist
-from ttg.plots.plot import Plot
-from ttg.samples.Sample import getSampleFromStack
-from ttg.tools.lock import lock
+from topSupport.tools.helpers import copyIndexPHP, copyGitInfo, addHist
+from topSupport.plots.plot import Plot
+from topSupport.samples.Sample import getSampleFromStack
+from topSupport.tools.lock import lock
 
 ROOT.TH1.SetDefaultSumw2()
 ROOT.TH2.SetDefaultSumw2()
@@ -194,7 +194,7 @@ class Plot2D(Plot):
       clean = True
 
 
-    import ttg.tools.style as style
+    import topSupport.tools.style as style
     style.setDefault2D(drawOption.count('COLZ'))
 
     # default_widths    

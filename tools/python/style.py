@@ -14,7 +14,7 @@ def setDefault():
   try:
     ROOT.setTDRStyle()
   except:
-    ROOT.gROOT.LoadMacro("$CMSSW_BASE/src/ttg/tools/scripts/tdrstyle.C")
+    ROOT.gROOT.LoadMacro("$CMSSW_BASE/src/topSupport/tools/scripts/tdrstyle.C")
     ROOT.setTDRStyle()
   ROOT.gROOT.SetStyle('tdrStyle')
   ROOT.gStyle.SetPaintTextFormat("3.2f")

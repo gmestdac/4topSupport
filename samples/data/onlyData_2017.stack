@@ -1,9 +1,3 @@
--- MC
-DY50_2017               DY              fillStyle     633
-
-TT_Dil_2017               TT              fillStyle     kGreen
-
-
 -- Data
 DoubleMuon_2017                 data:mumu,SF,all      errorStyle    kBlack                   isMuMu
 +SingleMuon_2017

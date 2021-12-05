@@ -12,7 +12,7 @@ import os, argparse
 argParser = argparse.ArgumentParser(description = "Argument parser")
 argParser.add_argument('--logLevel',  action='store',      default='INFO',               help='Log level for logging', nargs='?', choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'TRACE'])
 argParser.add_argument('--sample',    action='store',      default=None,                 help='Sample for which to produce reducedTuple, as listed in samples/data/tuples*.conf')
-argParser.add_argument('--year',      action='store',      default=None,                 help='Only run for a specific year', choices=['2016', '2017', '2018'])
+argParser.add_argument('--year',      action='store',      default=None,                 help='Only run for a specific year', choices=['2016Pre', '2016Post', '2017', '2018'])
 argParser.add_argument('--type',      action='store',      default='phoCB',              help='Specify type of reducedTuple')
 argParser.add_argument('--subJob',    action='store',      default=None,                 help='The xth subjob for a sample, number of subjobs is defined by split parameter in tuples.conf')
 argParser.add_argument('--splitData', action='store',      default=None,                 help='Splits the data in its separate runs')
@@ -27,7 +27,7 @@ argParser.add_argument('--onlyMC',    action='store_true', default=False,       
 args = argParser.parse_args()
 
 
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger(args.logLevel)
 
 import pdb
@@ -35,12 +35,12 @@ import pdb
 #
 # Retrieve sample list, reducedTuples need to be created for the samples listed in tuples.conf
 #
-from ttg.samples.Sample import createSampleList, getSampleFromList
-sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2016.conf'),
-                              os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2017.conf'),
-                              os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2018.conf'))
+from topSupport.samples.Sample import createSampleList, getSampleFromList
+sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2016.conf'),
+                              os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2017.conf'),
+                              os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2018.conf'))
 
-# sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2016.conf'))
+# sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2016.conf'))
 
 
 
@@ -53,29 +53,33 @@ sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/ttg/samples/da
 
 
 if args.singleJob and args.subJob and not args.isChild:
-  from ttg.tools.jobSubmitter import submitJobs
+  from topSupport.tools.jobSubmitter import submitJobs
   jobs = [(args.sample, args.year, args.subJob, args.splitData)]
   submitJobs(__file__, ('sample', 'year', 'subJob', 'splitData'), jobs, argParser, subLog=args.type, jobLabel = "RT")
   exit(0)
 
 if not args.isChild and not args.subJob:
-  from ttg.tools.jobSubmitter import submitJobs
+  from topSupport.tools.jobSubmitter import submitJobs
   if args.sample: sampleList = [s for s in sampleList if s.name == args.sample]
-  if args.year:   sampleList = [s for s in sampleList if s.year == args.year]
+  if args.year:   sampleList = [s for s in sampleList if s.year == args.year[:4]]
 
   jobs = []
   for sample in sampleList:
     if sample.isData:
       if args.splitData:          splitData = [args.splitData]
-      elif sample.year == '2016': splitData = ['B', 'C', 'D', 'E', 'F', 'G', 'H']
-      elif sample.year == '2017': splitData = ['B', 'C', 'D', 'E', 'F']
-      elif sample.year == '2018': splitData = ['A', 'B', 'C', 'D']
+      elif args.year.count('2016'):
+        if args.year.count('Pre'): splitData = ['B', 'C', 'D', 'E', 'F']
+        else: splitData = ['F', 'G', 'H']
+      elif args.year == '2017': splitData = ['B', 'C', 'D', 'E', 'F']
+      elif args.year == '2018': splitData = ['A', 'B', 'C', 'D']
     else:                         splitData = [None]
-    jobs += [(sample.name, sample.year, str(i), j) for i in xrange(sample.splitJobs) for j in splitData]
+    jobs += [(sample.name, args.year, str(i), j) for i in xrange(sample.splitJobs) for j in splitData]
   # pdb.set_trace()
   submitJobs(__file__, ('sample', 'year', 'subJob', 'splitData'), jobs, argParser, subLog=args.type, jobLabel = "RT")
   exit(0)
 
+
+args.year = args.year[:4] 
 
 #
 # From here on we are in the subjob, first init the chain and the lumiWeight
@@ -94,7 +98,7 @@ if not sample.isData:
 #
 # Create new reduced tree (except if it already exists and overwrite option is not used)
 #
-from ttg.tools.helpers import reducedTupleDir, isValidRootFile
+from topSupport.tools.helpers import reducedTupleDir, isValidRootFile
 outputId   = (args.splitData if args.splitData else '') + str(args.subJob)
 outputName = os.path.join(reducedTupleDir, sample.productionLabel, args.type, sample.name, sample.name + '_' + outputId + '.root')
 
@@ -145,7 +149,7 @@ for i in deleteBranches: sample.chain.SetBranchStatus("*"+i+"*", 1)
 
 newBranches  = []
 
-newBranches += ['l1/I', 'l2/I', 'l1_pt/F', 'l2_pt/F']
+newBranches += ['l1/I', 'l2/I', 'l1_pt/F', 'l2_pt/F', 'nLepSel/I']
 newBranches += ['mll/F']
 newBranches += ['isEE/O', 'isMuMu/O', 'isEMu/O', 'isOS/O']
 
@@ -154,18 +158,16 @@ if not sample.isData:
 
 
   
-from ttg.tools.makeBranches import makeBranches
+from topSupport.tools.makeBranches import makeBranches
 newVars = makeBranches(outputTree, newBranches)
 
-# c.egvar = ([var for var in ['ScaleUp', 'ScaleDown', 'ResUp', 'ResDown'] if 'eph' + var in args.type] + ['Corr'])[0]
-# c.muvar = ([var for var in ['ScaleUp', 'ScaleDown'] if 'mu' + var in args.type] + ['Corr'])[0]
 
 c.egvar = 'Corr'
 c.muvar = 'Corr'
 
 
-# from ttg.reduceTuple.objectSelection import setIDSelection, selectLeptons, selectPhotons, makeInvariantMasses, goodJets, bJets, makeDeltaR, reconstTops, getTopKinFit, storeLheTops
-from ttg.reduceTuple.objectSelection import selectLeptons, makeInvariantMasses
+# from topSupport.reduceTuple.objectSelection import setIDSelection, selectLeptons, selectPhotons, makeInvariantMasses, goodJets, bJets, makeDeltaR, reconstTops, getTopKinFit, storeLheTops
+from topSupport.reduceTuple.objectSelection import selectLeptons, makeInvariantMasses
 
 
 
@@ -175,6 +177,10 @@ for i in sample.eventLoop(totalJobs=sample.splitJobs, subJob=int(args.subJob), s
   if c.GetEntry(i) < 0: 
     log.warning("problem reading entry, skipping")
     continue
+
+  # NOTE respect the orders here!
+  if not selectLeptons(c, newVars, 2):                continue
+  
 
   if not c._passMETFilters:                           continue
   if sample.isData:
@@ -199,7 +205,6 @@ for i in sample.eventLoop(totalJobs=sample.splitJobs, subJob=int(args.subJob), s
   if not sample.isData:
     newVars.genWeight    = c._weight*lumiWeights[0]
 
-  if not selectLeptons(c, newVars, 2):                continue
   makeInvariantMasses(c, newVars)
 
 

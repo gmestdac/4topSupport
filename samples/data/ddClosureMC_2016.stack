@@ -1,0 +1,9 @@
+-- MC
+TT_DilPre_2016              TT              fillStyle     kGreen
++TT_DilPost_2016
+
+% warning: can't use aliases, need pre and post in sample names
+
+-- EST
+TT_DilPre_2016           TT_ddEstimate_(MC)              errorStyle     kBlack
++TT_DilPost_2016

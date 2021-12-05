@@ -27,7 +27,7 @@ argParser.add_argument('--onlyMC',    action='store_true', default=False,       
 args = argParser.parse_args()
 
 
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger(args.logLevel)
 
 import pdb
@@ -35,12 +35,12 @@ import pdb
 #
 # Retrieve sample list, reducedTuples need to be created for the samples listed in tuples.conf
 #
-from ttg.samples.Sample import createSampleList, getSampleFromList
-# sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2016.conf'),
-#                               os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2017.conf'),
-#                               os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2018.conf'))
+from topSupport.samples.Sample import createSampleList, getSampleFromList
+# sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2016.conf'),
+#                               os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2017.conf'),
+#                               os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2018.conf'))
 
-sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_2016.conf'))
+sampleList = createSampleList(os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_2016.conf'))
 
 
 #
@@ -54,13 +54,13 @@ forSys = args.type.count('Scale') or args.type.count('Res')  # Tuple is created 
 noSys = ['ttgjets', 'mtup', 'mtdown','uedown', 'ueup', '_erd', '_CR1', '_CR2']
 
 if args.singleJob and args.subJob and not args.isChild:
-  from ttg.tools.jobSubmitter import submitJobs
+  from topSupport.tools.jobSubmitter import submitJobs
   jobs = [(args.sample, args.year, args.subJob, args.splitData)]
   submitJobs(__file__, ('sample', 'year', 'subJob', 'splitData'), jobs, argParser, subLog=args.type, jobLabel = "RT")
   exit(0)
 
 if not args.isChild and not args.subJob:
-  from ttg.tools.jobSubmitter import submitJobs
+  from topSupport.tools.jobSubmitter import submitJobs
   if args.sample: sampleList = [s for s in sampleList if s.name == args.sample]
   if args.year:   sampleList = [s for s in sampleList if s.year == args.year]
 
@@ -96,7 +96,7 @@ if not sample.isData:
 #
 # Create new reduced tree (except if it already exists and overwrite option is not used)
 #
-from ttg.tools.helpers import reducedTupleDir, isValidRootFile
+from topSupport.tools.helpers import reducedTupleDir, isValidRootFile
 outputId   = (args.splitData if args.splitData else '') + str(args.subJob)
 outputName = os.path.join(reducedTupleDir, sample.productionLabel, args.type, sample.name, sample.name + '_' + outputId + '.root')
 
@@ -181,7 +181,7 @@ if not sample.isData:
   #   for sys in ['Up', 'Down']:                           newBranches += ['lWeightPSSys' + sys + '/F', 'lWeightElSyst' + sys + '/F','lWeightMuSyst' + sys + '/F','lWeightElStat' + sys + '/F','lWeightMuStat' + sys + '/F', 'puWeight' + sys + '/F', 'triggerWeightStatMM' + sys + '/F', 'triggerWeightStatEM' + sys + '/F', 'triggerWeightStatEE' + sys + '/F', 'triggerWeightSyst' + sys + '/F', 'phWeight' + sys + '/F', 'ISRWeight' + sys + '/F', 'FSRWeight' + sys + '/F',  'PVWeight' + sys + '/F', 'lTrackWeight' + sys + '/F']
   #   for sys in ['lUp', 'lDown', 'bCOUp', 'bCODown', 'bUCUp', 'bUCDown']:         newBranches += ['bTagWeight' + sys + '/F']
 
-from ttg.tools.makeBranches import makeBranches
+from topSupport.tools.makeBranches import makeBranches
 newVars = makeBranches(outputTree, newBranches)
 
 

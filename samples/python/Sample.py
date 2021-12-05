@@ -10,14 +10,16 @@
 #   sample.eventLoop:   loops over events from the chain (given selection string, job splitting)
 #
 
-from ttg.tools.logger import getLogger
+# import pdb
+
+from topSupport.tools.logger import getLogger
 log = getLogger()
 
 import glob, os, copy, ROOT, uuid
 
-from ttg.tools.progressBar import progressbar
-from ttg.tools.helpers import reducedTupleDir
-import ttg.tools.style as styles
+from topSupport.tools.progressBar import progressbar
+from topSupport.tools.helpers import reducedTupleDir
+import topSupport.tools.style as styles
 
 #
 # Sample class
@@ -120,6 +122,7 @@ class Sample:                                                                   
       self.chain        = ROOT.TChain('blackJackAndHookersTree')
       self.listOfFiles  = []
       for sample, productionLabel in self.addSamples:
+        # pdb.set_trace()
         self.listOfFiles += glob.glob(os.path.join(reducedTupleDir, productionLabel, reducedType, sample[4:] if sample[:4] in ['2016', '2017', '2018'] else sample, '*.root'))
     else:
       self.chain = ROOT.TChain('blackJackAndHookers/blackJackAndHookersTree')
@@ -134,7 +137,8 @@ class Sample:                                                                   
   # Helper function when sample is split in subjobs
   def getEventRange(self, entries, totalJobs, subJob):                                                                # pylint: disable=R0201
     thresholds = [i*entries/totalJobs for i in range(totalJobs)]+[entries]
-    return xrange(thresholds[subJob], thresholds[subJob+1])
+    # return xrange(thresholds[subJob], thresholds[subJob+1])
+    return range(thresholds[subJob], thresholds[subJob+1])
 
   # Make eventlist for selectionstring
   def getEventList(self, selectionString, totalJobs, subJob):
@@ -145,18 +149,20 @@ class Sample:                                                                   
     return [eventList.GetEntry(i) for i in self.getEventRange(eventList.GetN(), totalJobs, subJob)]
 
   # Get iterator over entries
-  def eventLoop(self, selectionString = None, totalJobs=1, subJob = 0):
+  def eventLoop(self, selectionString = None, totalJobs=1, subJob = 0, debugFrac = 0):
     # if not self.isData: self.chain.SetBranchStatus("_gen_daughterIndex", 0) # branch corrupted in some samples, not needed anyway
     if self.selectionString and selectionString: selectionString += "&&" + self.selectionString
     elif self.selectionString:                   selectionString  = self.selectionString
     if selectionString: entries = self.getEventList(selectionString, totalJobs, subJob)
     else:               entries = self.getEventRange(self.chain.GetEntries(), totalJobs, subJob)
+    if debugFrac:
+      entries = entries[::debugFrac]
     return progressbar(entries, self.name, 100)
 
 
 #
 # Create basic sample (without style options)
-#  - filename: tuples config as found in ttg/samples/data, e.g. "tuples_16.conf"
+#  - filename: tuples config as found in topSupport/samples/data, e.g. "tuples_16.conf"
 #
 def createSampleList(*filenames):
   for filename in filenames:
@@ -233,7 +239,7 @@ def createStack(tuplesFile, styleFile, channel, replacements = None):           
           if channel == 'ee':   texName += ' (2e)'
           if channel == 'mumu': texName += ' (2#mu)'
           if channel == 'emu':  texName += ' (1e, 1#mu)'
-        if texName.count('nonprompt') and texName.count('estimate') and not texName.count('MC'): # same as for data, but no naming fanciness
+        if ((texName.count('nonprompt') and texName.count('estimate')) or texName.count('chamidEstimate') or texName.count('ddEstimate')) and not texName.count('MC'): # same as for data, but no naming fanciness
           if not texName.count(channel):
             skip = True
             alias = None

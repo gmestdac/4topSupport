@@ -26,7 +26,7 @@ argParser.add_argument('--dumpArrays',     action='store_true', default=False)
 args = argParser.parse_args()
 
 
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 import pdb
 log = getLogger(args.logLevel)
 
@@ -34,14 +34,14 @@ if args.noZgCorr: args.tag += '-noZgCorr'
 #
 # Check git and edit the info file
 #
-from ttg.tools.helpers import editInfo, plotDir, updateGitInfo, deltaPhi, deltaR, lumiScales, lumiScalesRounded
+from topSupport.tools.helpers import editInfo, plotDir, updateGitInfo, deltaPhi, deltaR, lumiScales, lumiScalesRounded
 if args.editInfo:
   editInfo(os.path.join(plotDir, args.tag))
 
 #
 # Systematics
 #
-from ttg.plots.systematics import getReplacementsForStack, systematics, linearSystematics, applySysToTree, applySysToString, applySysToReduceType, showSysList, getSigmaSystFlat, getSigmaSystHigh, correlations, showSysListRunII, addYearLumiUnc, getBWrew
+# from topSupport.plots.systematics import getReplacementsForStack, systematics, linearSystematics, applySysToTree, applySysToString, applySysToReduceType, showSysList, getSigmaSystFlat, getSigmaSystHigh, correlations, showSysListRunII, addYearLumiUnc, getBWrew
 
 #
 # Submit subjobs
@@ -59,8 +59,8 @@ for f in sorted(glob.glob("../samples/data/*.stack")):
 
 if not args.isChild:
   updateGitInfo()
-  from ttg.tools.jobSubmitter import submitJobs
-  from ttg.plots.variations   import getVariations
+  from topSupport.tools.jobSubmitter import submitJobs
+  # from topSupport.plots.variations   import getVariations
   # if args.runSys and not os.path.exists(os.path.join(plotDir, args.year, args.tag, args.channel, args.selection, 'yield.pkl')):
   #   log.info('Make sure the nominal plots exist before running systematics')
   #   exit(0)
@@ -76,10 +76,10 @@ if not args.isChild:
 # Initializing
 #
 import ROOT
-from ttg.plots.plot                   import Plot, xAxisLabels, fillPlots, addPlots, customLabelSize, copySystPlots
-from ttg.plots.plot2D                 import Plot2D, add2DPlots, normalizeAlong, xAxisLabels2D, yAxisLabels2D
-from ttg.plots.cutInterpreter         import cutStringAndFunctions
-from ttg.samples.Sample               import createStack
+from topSupport.plots.plot                   import Plot, xAxisLabels, fillPlots, addPlots, customLabelSize, copySystPlots
+from topSupport.plots.plot2D                 import Plot2D, add2DPlots, normalizeAlong, xAxisLabels2D, yAxisLabels2D
+from topSupport.plots.cutInterpreter         import cutStringAndFunctions
+from topSupport.samples.Sample               import createStack
 
 
 from math import pi
@@ -110,13 +110,13 @@ if args.year == 'all':
       log.warning('stackfile ' + stackFile + '_' + year + '.stack is missing, exiting')
       exit(0)
 
-tupleFiles = {y : os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/tuples_' + y + '.conf') for y in ['2016', '2017', '2018', 'comb']}
+tupleFiles = {y : os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/tuples_' + y + '.conf') for y in ['2016', '2017', '2018', 'comb']}
 
 # when running over all years, just initialise the plots with the stack for 16
 stack = createStack(tuplesFile   = os.path.expandvars(tupleFiles['2016' if args.year == 'all' else args.year]),
-                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/' + stackFile + '_' + ('2016' if args.year == 'all' else args.year) + '.stack'),
+                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/' + stackFile + '_' + ('2016' if args.year == 'all' else args.year) + '.stack'),
                     channel      = args.channel,
-                    replacements = getReplacementsForStack(args.sys, args.year)
+                    # replacements = getReplacementsForStack(args.sys, args.year)
                     )
 
 
@@ -135,7 +135,16 @@ modTexLeg = []
 Plot.setDefaults(stack=stack, texY = ('(1/N) dN/dx' if normalize else 'Events / bin'), modTexLeg = modTexLeg )
 Plot2D.setDefaults(stack=stack)
 
-from ttg.plots.plotHelpers  import *
+from topSupport.plots.plotHelpers  import *
+
+
+
+def getSortKey(item): return item[0]
+
+def sortedLeps(c, num):
+  ptAndIndex= [(c._gen_lPt[i], i) for i in [c.llep1, c.llep2, c.llep3, c.llep4]]
+  ptAndIndex.sort(reverse=True, key=getSortKey)
+  return ptAndIndex[num][1]
 
 # Plot definitions (allow long lines, and switch off unneeded lambda warning, because lambdas are needed)
 def makePlotList():
@@ -148,15 +157,22 @@ def makePlotList():
   plotList.append(Plot('totYield',                   'total yield',                           lambda c : 0.5,                                                (1, 0, 1),   histModifications=xAxisLabels([''])))
   plotList.append(Plot('decayCateg',   '',          lambda c : c.decayCateg,         (6, 0, 6), histModifications=xAxisLabels(['0l', '1l', '2l SS', '2l OS', '3l', '4l'])))
 
-  plotList.append(Plot2D('nl_nll',          'nl',           lambda c : c.nl,               (6, 0, 6),          'nll',          lambda c : c.nll,              (6, 0, 6)))
-  plotList.append(Plot2D('nl_nhtau',          'nl',           lambda c : c.nl,               (6, 0, 6),        'nhtau',          lambda c : c.nhtau,         (6, 0, 6)))
-  plotList.append(Plot2D('nll_nhtau',        'nll',          lambda c : c.nll,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6)))
-  plotList.append(Plot2D('decayCateg_nhtau',        '',          lambda c : c.decayCateg,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=xAxisLabels2D(['0l', '1l', '2l SS', '2l OS', '3l', '4l'])))
+#   plotList.append(Plot2D('nl_nll',          'nl',           lambda c : c.nl,               (6, 0, 6),          'nll',          lambda c : c.nll,              (6, 0, 6)))
+#   plotList.append(Plot2D('nl_nhtau',          'nl',           lambda c : c.nl,               (6, 0, 6),        'nhtau',          lambda c : c.nhtau,         (6, 0, 6)))
+#   plotList.append(Plot2D('nll_nhtau',        'nll',          lambda c : c.nll,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6)))
+#   plotList.append(Plot2D('decayCateg_nhtau',        '',          lambda c : c.decayCateg,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=xAxisLabels2D(['0l', '1l', '2l SS', '2l OS', '3l', '4l'])))
 
-  plotList.append(Plot2D('nl_nll_ynorm',          'nl',           lambda c : c.nl,               (6, 0, 6),          'nll',          lambda c : c.nll,              (6, 0, 6), histModifications=normalizeAlong('y')))
-  plotList.append(Plot2D('nl_nhtau_ynorm',          'nl',           lambda c : c.nl,               (6, 0, 6),        'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=normalizeAlong('y')))
-  plotList.append(Plot2D('nll_nhtau_ynorm',        'nll',          lambda c : c.nll,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=normalizeAlong('y')))
-  plotList.append(Plot2D('decayCateg_nhtau_ynorm',        '',          lambda c : c.decayCateg,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=[normalizeAlong('y'), xAxisLabels2D(['0l', '1l', '2l SS', '2l OS', '3l', '4l'])]))
+#   plotList.append(Plot2D('nl_nll_ynorm',          'nl',           lambda c : c.nl,               (6, 0, 6),          'nll',          lambda c : c.nll,              (6, 0, 6), histModifications=normalizeAlong('y')))
+#   plotList.append(Plot2D('nl_nhtau_ynorm',          'nl',           lambda c : c.nl,               (6, 0, 6),        'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=normalizeAlong('y')))
+#   plotList.append(Plot2D('nll_nhtau_ynorm',        'nll',          lambda c : c.nll,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=normalizeAlong('y')))
+#   plotList.append(Plot2D('decayCateg_nhtau_ynorm',        '',          lambda c : c.decayCateg,              (6, 0, 6),         'nhtau',          lambda c : c.nhtau,         (6, 0, 6), histModifications=[normalizeAlong('y'), xAxisLabels2D(['0l', '1l', '2l SS', '2l OS', '3l', '4l'])]))
+
+  plotList.append(Plot('pt_lep1',          'pt_lep1',           lambda c : c._gen_lPt[sortedLeps(c, 0)],               (30, 0, 100)))
+  plotList.append(Plot('pt_lep2',          'pt_lep2',           lambda c : c._gen_lPt[sortedLeps(c, 1)],               (30, 0, 100)))
+  plotList.append(Plot('pt_lep3',          'pt_lep3',           lambda c : c._gen_lPt[sortedLeps(c, 2)],               (30, 0, 100)))
+  plotList.append(Plot('pt_lep4',          'pt_lep4',           lambda c : c._gen_lPt[sortedLeps(c, 3)],               (30, 0, 100)))
+
+
 
 
   # plotList.append(Plot('photon_chargedIso',          'chargedIso(#gamma) [GeV]',         lambda c : (c._phChargedIsolation[c.ph] if not c.data else c._phRandomConeChargedIsolation[c.ph]),               (20, 0, 20)))
@@ -187,7 +203,7 @@ if args.tag.lower().count('pretend'):
   lumiScalesRounded['2016'] = lumiScalesRounded['RunII']
 
 
-from ttg.tools.style import drawLumi, drawLumi2D, setDefault, ttgGeneralStyle
+from topSupport.tools.style import drawLumi, drawLumi2D, setDefault, ttgGeneralStyle
 
 setDefault()
 ttgGeneralStyle()
@@ -195,9 +211,9 @@ ttgGeneralStyle()
 for year in years:
   plots = makePlotList()
   stack = createStack(tuplesFile   = os.path.expandvars(tupleFiles[year]),
-                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/ttg/samples/data/' + stackFile + '_' + year + '.stack'),
+                    styleFile    = os.path.expandvars('$CMSSW_BASE/src/topSupport/samples/data/' + stackFile + '_' + year + '.stack'),
                     channel      = args.channel,
-                    replacements = getReplacementsForStack(args.sys, args.year)
+                    # replacements = getReplacementsForStack(args.sys, args.year)
                     )
 
   # link the newly loaded samples to their respective existing histograms in the plots
@@ -233,7 +249,7 @@ for year in years:
     reduceType = '4tE'
     log.info("using reduceType " + reduceType)
 
-    from ttg.plots.photonCategories import checkMatch, checkSigmaIetaIeta, checkChgIso
+    # from topSupport.plots.photonCategories import checkMatch, checkSigmaIetaIeta, checkChgIso
 
     for sample in sum(stack, []):
 
@@ -249,6 +265,26 @@ for year in years:
       for i in sample.eventLoop(cutString):
         if c.GetEntry(i) < 0:
           log.info('corrupt basket in ' + str(c.GetFile()) )
+
+        if not c.nll == 4: continue
+
+        # if not c.nhtau == 0: continue
+        # log.info(c._gen_lPt[c.llep1])
+        # log.info(c._gen_lPt[c.llep2])
+        # log.info(c._gen_lPt[c.llep3])
+        # log.info(c._gen_lPt[c.llep4])
+        # log.info('--------------------------------')
+        # if not abs(c._gen_lEta[c.llep1]) <2.4: continue
+        # if not abs(c._gen_lEta[c.llep2]) <2.4: continue
+        # if not abs(c._gen_lEta[c.llep3]) <2.4: continue
+        # if not abs(c._gen_lEta[c.llep4]) <2.4: continue
+
+        # if not c._gen_lPassParentage[c.llep1]: continue
+        # if not c._gen_lPassParentage[c.llep2]: continue
+        # if not c._gen_lPassParentage[c.llep3]: continue
+        # if not c._gen_lPassParentage[c.llep4]: continue
+
+
 
         if not passingFunctions(c): continue
 

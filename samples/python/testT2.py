@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger()
 
 import glob, ROOT, sys

@@ -60,7 +60,7 @@ def copyIndexPHP(directory):
     if not plotDir in p: continue
     index_php = os.path.join(p, 'index.php')
     if os.path.exists(index_php): continue
-    shutil.copyfile(os.path.expandvars('$CMSSW_BASE/src/ttg/tools/php/index.php'), index_php)
+    shutil.copyfile(os.path.expandvars('$CMSSW_BASE/src/topSupport/tools/php/index.php'), index_php)
 
 #
 # Update the latest git information

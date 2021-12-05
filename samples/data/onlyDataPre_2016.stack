@@ -1,0 +1,13 @@
+-- Data
+DoubleEGPre_2016                   data:ee,SF,all        errorStyle    kBlack                   isEE
++SingleElectronPre_2016
+
+
+DoubleMuonPre_2016                 data:mumu,SF,all      errorStyle    kBlack                   isMuMu
++SingleMuonPre_2016
+
+
+MuonEGPre_2016                     data:emu,all          errorStyle    kBlack                   isEMu
++SingleMuonPre_2016
++SingleElectronPre_2016
+

@@ -1,4 +1,4 @@
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger()
 
 import os, time, subprocess
@@ -31,7 +31,7 @@ def launchCream02(command, logfile, checkQueue=False, wallTime='15', queue='loca
                  '-l walltime=' + wallTime + ':00:00',
                  '-N ' + jobName,
                  '-l nodes=1:ppn=' + str(cores)]
-  try:    out = system('qsub ' + ' '.join(qsubOptions) + ' $CMSSW_BASE/src/ttg/tools/scripts/runOnCream02.sh')
+  try:    out = system('qsub ' + ' '.join(qsubOptions) + ' $CMSSW_BASE/src/topSupport/tools/scripts/runOnCream02.sh')
   except: out = 'failed'
   if not out.count('.cream02.iihe.ac.be'):
     time.sleep(10)

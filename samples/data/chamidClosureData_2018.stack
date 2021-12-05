@@ -1,0 +1,19 @@
+-- Data
+DoubleMuon_2018                 data:mumu,SF,all      fillStyle    kOrange                  isMuMu
++SingleMuon_2018
+
+EGamma_2018                   data:ee,SF,all        fillStyle    kOrange                   isEE
+
+MuonEG_2018                     data:emu,all          fillStyle    kOrange                  isEMu
++SingleMuon_2018
++SingleElectron_2018
+
+-- EST
+DoubleMuon_2018                 chamidEstimate:mumu,SF,all      errorStyle    kBlack                   isMuMu
++SingleMuon_2018
+
+EGamma_2018                   chamidEstimate:ee,SF,all        errorStyle    kBlack                   isEE
+
+MuonEG_2018                     chamidEstimate:emu,all          errorStyle    kBlack                   isEMu
++SingleMuon_2018
++SingleElectron_2018

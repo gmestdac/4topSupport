@@ -1,9 +1,3 @@
--- MC
-DY50Post_2016               DY              fillStyle     633
-
-% warning: can't use aliases, need pre and post in sample names
-
-
 -- Data
 DoubleEGPost_2016                   data:ee,SF,all        errorStyle    kBlack                   isEE
 +SingleElectronPost_2016
@@ -16,3 +10,4 @@ DoubleMuonPost_2016                 data:mumu,SF,all      errorStyle    kBlack  
 MuonEGPost_2016                    data:emu,all          errorStyle    kBlack                   isEMu
 +SingleMuonPost_2016
 +SingleElectronPost_2016
+

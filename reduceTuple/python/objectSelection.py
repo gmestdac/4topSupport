@@ -1,5 +1,5 @@
-from ttg.tools.logger  import getLogger
-from ttg.tools.helpers import deltaR
+from topSupport.tools.logger  import getLogger
+from topSupport.tools.helpers import deltaR
 from math import sqrt, atan, pi, tan
 from math import log as logar
 import ROOT
@@ -46,7 +46,6 @@ def baseMuonSelector(tree, index):
   if not abs(tree._dz[index]) < 0.1:                    return False
   if not abs(tree._3dIPSig[index]) < 8:                 return False
   if not tree._miniIso[index] < 0.4:                    return False
-  # log.info('B')
   return True
 
 
@@ -124,7 +123,6 @@ def leptonSelector(tree, index):
 
 #
 # Selects leptons passing the id and iso criteria, sorts them, and save their indices
-# First lepton needs to pass pt > 25 GeV
 #
 def getSortKey(item): return item[0]
 
@@ -141,7 +139,11 @@ def select2l(t, n):
   n.isEMu           = (t._lFlavor[n.l1]==0 and t._lFlavor[n.l2]==1) or (t._lFlavor[n.l1]==1 and t._lFlavor[n.l2]==0)
   n.isMuMu          = (t._lFlavor[n.l1]==1 and t._lFlavor[n.l2]==1)
   n.isOS            = t._lCharge[n.l1] != t._lCharge[n.l2]
-  return (leptonPt(t, n.l1) > 20 and n.isEE)
+  # return (leptonPt(t, n.l1) > 20 and n.isEE)
+  n.nLepSel = len(ptAndIndex)
+
+  return leptonPt(t, n.l1) > 20
+
 
 
 # def select1l(t, n):
@@ -158,7 +160,7 @@ def select2l(t, n):
 def selectLeptons(t, n, minLeptons):
   t.leptons = [i for i in xrange(t._nLight) if leptonSelector(t, i)]
   if   minLeptons == 2: return select2l(t, n)
-  else: return False #we're sticking to exactly 2 leptons right now
+  else: return False #we're sticking to  2 leptons right now
   # elif minLeptons == 1: return select1l(t, n)
   # elif minLeptons == 0: return True
 

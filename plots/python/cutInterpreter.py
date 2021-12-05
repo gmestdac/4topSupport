@@ -1,4 +1,4 @@
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger()
 #
 # Class to interpret string based cuts
@@ -28,8 +28,19 @@ special_cuts = {
 
     'signalRegionEstA':       '((njets>0)||isEMu)',
     'signalRegionEstB':       '((njets>1)||isEMu)',
+    
+    'l1Right': '_lCharge[l1]==_lMatchCharge[l1]',
+    'l2Right': '_lCharge[l2]==_lMatchCharge[l2]',
+    'l1Wrong': '!(_lCharge[l1]==_lMatchCharge[l1])',
+    'l2Wrong': '!(_lCharge[l2]==_lMatchCharge[l2])',
 
-
+    'l1Right': '_lCharge[l1]==_lMatchCharge[l1]',
+    
+    'EE': '(abs(_lEtaSC[l1])> 1.497)&&(abs(_lEtaSC[l2])> 1.497)',
+    'EB': '(abs(_lEtaSC[l1])> 1.497)&&(abs(_lEtaSC[l2])< 1.497)',
+    'BE': '(abs(_lEtaSC[l1])< 1.497)&&(abs(_lEtaSC[l2])> 1.497)',
+    'BB': '(abs(_lEtaSC[l1])< 1.497)&&(abs(_lEtaSC[l2])< 1.497)',
+    
     'all':                 '(1)',
     'noData':              '(1)',
     'ee':                  'isEE',
@@ -61,14 +72,31 @@ def phEta(tree, lower, upper):
 def phSigma(tree, lower, upper):
   return (lower <= tree._phSigmaIetaIeta[tree.ph] < upper)
 
-continous_variables = {'mll': 'mll', 'ml1g': 'ml1g', 'photonPt': 'ph_pt', 'phJetDeltaR': 'phJetDeltaR', 'phLepDeltaR': phLepDeltaR, 'genPhMinDeltaR' : 'genPhMinDeltaR', 'phMVA': phMVA, 'chIso':chIso, 'puChargedHadronIso' : puChargedHadronIso, 'photonEta': phEta, 'PLphotonPt': 'PLph_pt', 'phSigma': phSigma}
-discrete_variables  = {'njet': 'njets', 'btag': 'nbjets', 'deepbtag': 'ndbjets', 'nphoton': 'nphotons', 'PLnphoton': 'PLnphotons', 'PLnjet': 'PLnjets', 'PLnb': 'PLndbjets', 'nvert': '_nVertex'}
+def lEtaA(tree, lower, upper):
+  return (lower <= abs(tree._lEta[tree.l1]) < upper)
+
+def lEtaB(tree, lower, upper):
+  return (lower <= abs(tree._lEta[tree.l2]) < upper)
+
+# def lArightCharge(tree)
+#   t._lCharge[c.l1] == t._lMatchCharge[c.l1]
+
+
+# def lptA(tree, lower, upper):
+#   return (lower <= tree.l1_pt < upper)
+
+# def lptB(tree, lower, upper):
+#   return (lower <= tree.l2_pt < upper)
+
+
+continous_variables = {'mll': 'mll', 'ml1g': 'ml1g', 'photonPt': 'ph_pt', 'phJetDeltaR': 'phJetDeltaR', 'phLepDeltaR': phLepDeltaR, 'genPhMinDeltaR' : 'genPhMinDeltaR', 'phMVA': phMVA, 'chIso':chIso, 'puChargedHadronIso' : puChargedHadronIso, 'photonEta': phEta, 'PLphotonPt': 'PLph_pt', 'phSigma': phSigma, 'lEtaA': lEtaA, 'lEtaB': lEtaB, 'l1_pt': 'l1_pt', 'l2_pt': 'l2_pt'}
+discrete_variables  = {'njet': 'njets', 'btag': 'nbjets', 'deepbtag': 'ndbjets', 'nphoton': 'nphotons', 'PLnphoton': 'PLnphotons', 'PLnjet': 'PLnjets', 'PLnb': 'PLndbjets', 'nvert': '_nVertex', 'nLep': 'nLepSel'}
 
 
 
 # Need to disable the too many branches function because CMSSW has some ancient pylint release which does not exclude nested functions
 def cutStringAndFunctions(cuts, channel): # pylint: disable=R0912
-  if cuts == 'unsk': return '', (lambda t : True)
+  if cuts.count('unsk'): return '', (lambda t : True)
   
   def buildString(tree_var, lower, upper):
     if lower == upper: return tree_var + '==' + lower

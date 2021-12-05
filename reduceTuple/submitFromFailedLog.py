@@ -18,7 +18,7 @@ argParser.add_argument('--age',   action='store', default=999., type=float,  hel
 argParser.add_argument('--subAlreadyExists',   action='store_true', default=False,  help='submit/show jobsy that are done because the output already existed')
 args = argParser.parse_args()
 
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger(args.logLevel)
 
 # Get paths to all logs and analyze the files
@@ -71,12 +71,12 @@ for logfile in getLogs('./log'):
 
 
 # Update latest git status before resubmitting
-from ttg.tools.helpers import updateGitInfo
+from topSupport.tools.helpers import updateGitInfo
 updateGitInfo()
 
 
 # Resubmit the failed jobs
-from ttg.tools.jobSubmitter import launchLocal, launchCream02, launchCondor
+from topSupport.tools.jobSubmitter import launchLocal, launchCream02, launchCondor
 from datetime import datetime
 for i, (command, logfile) in enumerate(jobsToSubmit):
   if args.dryRun:

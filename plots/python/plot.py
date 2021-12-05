@@ -1,4 +1,4 @@
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger()
 import pdb
 
@@ -10,13 +10,13 @@ import pdb
 import ROOT, os, uuid, numpy, math
 import cPickle as pickle
 from math import sqrt
-from ttg.tools.helpers import copyIndexPHP, copyGitInfo, plotDir, addHist
-from ttg.tools.lock import lock
-from ttg.tools.style import drawTex, getDefaultCanvas, setDefault, ttgGeneralStyle, fromAxisToNDC
-from ttg.plots.postFitInfo import applyPostFitScaling, applyPostFitConstraint
-# from ttg.plots.systematics import constructQ2Sys, constructPdfSys, constructCRSys
-from ttg.plots.systematics import constructQ2Sys, constructPdfSys
-from ttg.samples.Sample import getSampleFromStack
+from topSupport.tools.helpers import copyIndexPHP, copyGitInfo, plotDir, addHist
+from topSupport.tools.lock import lock
+from topSupport.tools.style import drawTex, getDefaultCanvas, setDefault, ttgGeneralStyle, fromAxisToNDC
+# from topSupport.plots.postFitInfo import applyPostFitScaling, applyPostFitConstraint
+# from topSupport.plots.systematics import constructQ2Sys, constructPdfSys, constructCRSys
+# from topSupport.plots.systematics import constructQ2Sys, constructPdfSys
+from topSupport.samples.Sample import getSampleFromStack
 
 ROOT.TH1.SetDefaultSumw2()
 ROOT.TH2.SetDefaultSumw2()
@@ -619,7 +619,7 @@ class Plot:
 
     legendReplacements = {}
     if fakesFromSideband and self.name == 'photon_chargedIso_bins_NO':
-      from ttg.plots.replaceShape import replaceShapeForFakes
+      from topSupport.plots.replaceShape import replaceShapeForFakes
       legendReplacements.update(replaceShapeForFakes(self))
 
     if postFitInfo:
@@ -826,17 +826,3 @@ def copySystPlots(plots, sourceYear, year, tag, channel, selection, sys):
     for p in toRemove: plots.remove(p)
     toRemove = None
 
-
-# TODO maybe generalize, otherwise might just have to use this for ttgamma instead
-# def freezeZgYield(plots, year, tag, channel, selection):
-#   for i, plot in enumerate(plots):
-#     try:
-#       for samp, hist in plot.histos.iteritems():
-#         if not 'ZG' in samp.nameNoSys: continue
-#         nomHist = getHistFromPkl((year, tag, channel, selection), plot.name, '', [samp.nameNoSys+samp.texName])
-#         hist.Scale(nomHist.Integral()/hist.Integral())
-#         plots[i].histos[samp] = hist
-#       log.debug('Zg yield frozen in plot ' + plot.name)
-#     except Exception as e:
-#       log.debug('Zg yield NOT frozen in plot ' + plot.name + ' bproblem:')
-#       log.debug(e)

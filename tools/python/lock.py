@@ -1,4 +1,4 @@
-from ttg.tools.logger import getLogger
+from topSupport.tools.logger import getLogger
 log = getLogger()
 
 import os, errno, time

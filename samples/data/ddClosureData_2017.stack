@@ -1,0 +1,22 @@
+-- Data
+DoubleMuon_2017                 data:mumu,SF,all     fillStyle    kOrange                   isMuMu
++SingleMuon_2017
+
+DoubleEG_2017                   data:ee,SF,all       fillStyle    kOrange                   isEE
++SingleElectron_2017
+
+MuonEG_2017                     data:emu,all         fillStyle    kOrange                   isEMu
++SingleMuon_2017
++SingleElectron_2017
+
+
+-- EST
+DoubleMuon_2017                 ddEstimate:mumu,SF,all      errorStyle    kBlack                   isMuMu
++SingleMuon_2017
+
+DoubleEG_2017                   ddEstimate:ee,SF,all        errorStyle    kBlack                   isEE
++SingleElectron_2017
+
+MuonEG_2017                     ddEstimate:emu,all          errorStyle    kBlack                   isEMu
++SingleMuon_2017
++SingleElectron_2017
