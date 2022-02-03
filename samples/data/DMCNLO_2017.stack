@@ -1,0 +1,16 @@
+-- MC
+DYFXFX50_2017               DY              fillStyle     633
++DYMLM10_2017
+
+TT_Dil_2017              TT              fillStyle     kGreen
+
+-- Data
+DoubleMuon_2017                 data:mumu,SF,all      errorStyle    kBlack                   isMuMu
++SingleMuon_2017
+
+DoubleEG_2017                   data:ee,SF,all        errorStyle    kBlack                   isEE
++SingleElectron_2017
+
+MuonEG_2017                     data:emu,all          errorStyle    kBlack                   isEMu
++SingleMuon_2017
++SingleElectron_2017

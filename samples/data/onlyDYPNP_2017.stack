@@ -1,0 +1,5 @@
+-- MC
+DY50_2017               DY_notBothPrompt              fillStyle     kRed    !(_lIsPrompt[l1]&&_lIsPrompt[l2])
+
+DY50_2017               DY_bothPrompt              fillStyle     kBlue    (_lIsPrompt[l1]&&_lIsPrompt[l2])
+ 

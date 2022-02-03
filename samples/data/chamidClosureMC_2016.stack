@@ -1,6 +1,8 @@
 -- MC
-DY50Post_2016               DY              fillStyle     633
-+DY50Pre_2016 
+DYFXFX50Post_2016            DY              fillStyle     633
++DYMLM10Post_2016
++DYFXFX50Pre_2016
++DYMLM10Pre_2016 
 
 TT_DilPre_2016              TT              fillStyle     kGreen
 +TT_DilPost_2016
@@ -8,7 +10,9 @@ TT_DilPre_2016              TT              fillStyle     kGreen
 % warning: can't use aliases, need pre and post in sample names
 
 -- EST
-DY50Post_2016            DY_TT_chamidEstimate_(MC)              errorStyle     kBlack
-+DY50Pre_2016 
+DYFXFX50Post_2016            DY_TT_chamidEstimate_(MC)              errorStyle     kBlack
++DYMLM10Post_2016
++DYFXFX50Pre_2016
++DYMLM10Pre_2016 
 +TT_DilPre_2016
 +TT_DilPost_2016

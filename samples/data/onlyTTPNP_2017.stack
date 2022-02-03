@@ -1,0 +1,4 @@
+-- MC
+TT_Dil_2017               TT_notBothPrompt              fillStyle     kRed  !(_lIsPrompt[l1]&&_lIsPrompt[l2])
+
+TT_Dil_2017               TT_bothPrompt              fillStyle     kBlue  (_lIsPrompt[l1]&&_lIsPrompt[l2])

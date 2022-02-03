@@ -34,11 +34,10 @@ ROOT.TColor.CreateGradientColorTable(2,stops,red,green,blue,25)
 ssPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/A-chamid/ee/onZ-nLep2-SS/'
 osPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/A-chamid/ee/onZ-nLep2-OS/'
 
-l1RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/A-chamid/noData/onZ-nLep2-ee-l1Right/'
-l1WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/A-chamid/noData/onZ-nLep2-ee-l1Wrong/'
-l2RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/A-chamid/noData/onZ-nLep2-ee-l2Right/'
-l2WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/A-chamid/noData/onZ-nLep2-ee-l2Wrong/'
-
+l1RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/Dcha-onlyDY-norat/ee/onZ-nLep2-lepsPrompt-l1Right/'
+l1WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/Dcha-onlyDY-norat/ee/onZ-nLep2-lepsPrompt-l1Wrong/'
+l2RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/Dcha-onlyDY-norat/ee/onZ-nLep2-lepsPrompt-l2Right/'
+l2WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/Dcha-onlyDY-norat/ee/onZ-nLep2-lepsPrompt-l2Wrong/'
 
 labels = {
           'eta2D' :         ('#eta A',   '#eta B'  ),
@@ -58,58 +57,58 @@ def sumHists(dict, sumkeys = [], antiSumKeys = []):
 
 
 
-# THIS PART JUST TAKES THE SS/OS RATIO
-for year in ['2017' , '2018']:
-  for plot in ['eta2D', 'pt2D']:
-    for data in [False, True]:
-      log.info('plotting for ' + year + ' ' + plot)
-      canv = ROOT.TCanvas(year + plot, '', 1200, 1100)
-      # statCovCanv.SetLogz(True)
-      canv.SetRightMargin(0.19)
-      canv.SetLeftMargin(0.12)
-      canv.SetTopMargin(0.07)
-      canv.SetBottomMargin(0.11)
+# # THIS PART JUST TAKES THE SS/OS RATIO
+# for year in ['2017' , '2018']:
+#   for plot in ['eta2D', 'pt2D']:
+#     for data in [False, True]:
+#       log.info('plotting for ' + year + ' ' + plot)
+#       canv = ROOT.TCanvas(year + plot, '', 1200, 1100)
+#       # statCovCanv.SetLogz(True)
+#       canv.SetRightMargin(0.19)
+#       canv.SetLeftMargin(0.12)
+#       canv.SetTopMargin(0.07)
+#       canv.SetBottomMargin(0.11)
 
 
-      if data:
-        ss = sumHists(pickle.load(open(ssPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], ['data'] , [])
-        os = sumHists(pickle.load(open(osPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], ['data'] , [])
-      else:
-        ss = sumHists(pickle.load(open(ssPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], [] , ['data'])
-        os = sumHists(pickle.load(open(osPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], [] , ['data'])
+#       if data:
+#         ss = sumHists(pickle.load(open(ssPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], ['data'] , [])
+#         os = sumHists(pickle.load(open(osPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], ['data'] , [])
+#       else:
+#         ss = sumHists(pickle.load(open(ssPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], [] , ['data'])
+#         os = sumHists(pickle.load(open(osPath.replace('YEAR', year) + plot + '.pkl', 'r'))[plot], [] , ['data'])
 
-      # pdb.set_trace()
+#       # pdb.set_trace()
 
-      ratio = ss.Clone()
-      ratio.Divide(os)
+#       ratio = ss.Clone()
+#       ratio.Divide(os)
 
-      ratio.Scale(10.**scaling)
+#       ratio.Scale(10.**scaling)
 
-      ratio.SetTitle('')
-      ratio.GetXaxis().SetTitle(labels[plot][0])
-      ratio.GetYaxis().SetTitle(labels[plot][1])
-      ratio.GetZaxis().SetTitle("Ratio")
-      ratio.GetYaxis().SetTitleOffset(1.3)
-      ratio.GetXaxis().SetTitleOffset(1.1)
-      ratio.GetZaxis().SetTitleOffset(1.1)
-      ratio.GetXaxis().SetTitleSize(0.045)
-      ratio.GetYaxis().SetTitleSize(0.045)
-      ratio.GetZaxis().SetTitleSize(0.045)
-      ratio.GetXaxis().SetLabelSize(0.04)
-      ratio.GetYaxis().SetLabelSize(0.04)
-      ratio.GetZaxis().SetLabelSize(0.04)
-      ratio.GetXaxis().SetTickLength(0)
-      ratio.GetYaxis().SetTickLength(0)
-      # ratio.LabelsOption('v','x')
+#       ratio.SetTitle('')
+#       ratio.GetXaxis().SetTitle(labels[plot][0])
+#       ratio.GetYaxis().SetTitle(labels[plot][1])
+#       ratio.GetZaxis().SetTitle("Ratio")
+#       ratio.GetYaxis().SetTitleOffset(1.3)
+#       ratio.GetXaxis().SetTitleOffset(1.1)
+#       ratio.GetZaxis().SetTitleOffset(1.1)
+#       ratio.GetXaxis().SetTitleSize(0.045)
+#       ratio.GetYaxis().SetTitleSize(0.045)
+#       ratio.GetZaxis().SetTitleSize(0.045)
+#       ratio.GetXaxis().SetLabelSize(0.04)
+#       ratio.GetYaxis().SetLabelSize(0.04)
+#       ratio.GetZaxis().SetLabelSize(0.04)
+#       ratio.GetXaxis().SetTickLength(0)
+#       ratio.GetYaxis().SetTickLength(0)
+#       # ratio.LabelsOption('v','x')
       
-      # pdb.set_trace()
+#       # pdb.set_trace()
       
-      ratio.Draw('COLZ text error')
+#       ratio.Draw('COLZ text error')
 
-      drawTex((1-ROOT.gStyle.GetPadRightMargin()-0.02,  1-ROOT.gStyle.GetPadTopMargin()+0.034, '#times10^{#minus' + str(scaling) + '}'), 11,  size=0.05)
+#       drawTex((1-ROOT.gStyle.GetPadRightMargin()-0.02,  1-ROOT.gStyle.GetPadTopMargin()+0.034, '#times10^{#minus' + str(scaling) + '}'), 11,  size=0.05)
 
-      canv.SaveAs('chargeMisIdRatios/ratio' + year + plot + ('data' if data else 'MC') +'.pdf')
-      canv.SaveAs('chargeMisIdRatios/ratio' + year + plot + ('data' if data else 'MC') +'.png')
+#       canv.SaveAs('chargeMisIdRatios/ratio' + year + plot + ('data' if data else 'MC') +'.pdf')
+#       canv.SaveAs('chargeMisIdRatios/ratio' + year + plot + ('data' if data else 'MC') +'.png')
 
 
 
@@ -118,7 +117,9 @@ for year in ['2017' , '2018']:
 
 ############# truth based charge misID ratios
 
-for year in ['2016', '2016Pre', '2016Post', '2017' , '2018']:
+# for year in ['2016', '2016Pre', '2016Post', '2017' , '2018']:
+for year in ['2016', '2017' , '2018']:
+# for year in ['2016']:
   for plot in ['ptEtaTTbinning']:
     log.info('plotting for ' + year + ' ' + plot)
     canv = ROOT.TCanvas(year + plot, '', 1200, 1100)

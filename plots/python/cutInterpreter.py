@@ -34,13 +34,18 @@ special_cuts = {
     'l1Wrong': '!(_lCharge[l1]==_lMatchCharge[l1])',
     'l2Wrong': '!(_lCharge[l2]==_lMatchCharge[l2])',
 
-    'l1Right': '_lCharge[l1]==_lMatchCharge[l1]',
-    
+    'l1CF': '_lCharge[l1]==-1*_lMatchCharge[l1]',
+    'l2CF': '_lCharge[l2]==-1*_lMatchCharge[l2]',
+    'l1NCF': '!(_lCharge[l1]==-1*_lMatchCharge[l1])',
+    'l2NCF': '!(_lCharge[l2]==-1*_lMatchCharge[l2])',
+
     'EE': '(abs(_lEtaSC[l1])> 1.497)&&(abs(_lEtaSC[l2])> 1.497)',
     'EB': '(abs(_lEtaSC[l1])> 1.497)&&(abs(_lEtaSC[l2])< 1.497)',
     'BE': '(abs(_lEtaSC[l1])< 1.497)&&(abs(_lEtaSC[l2])> 1.497)',
     'BB': '(abs(_lEtaSC[l1])< 1.497)&&(abs(_lEtaSC[l2])< 1.497)',
-    
+
+    'lepsPrompt': '(_lIsPrompt[l1]&&_lIsPrompt[l2])',
+
     'all':                 '(1)',
     'noData':              '(1)',
     'ee':                  'isEE',
@@ -78,6 +83,13 @@ def lEtaA(tree, lower, upper):
 def lEtaB(tree, lower, upper):
   return (lower <= abs(tree._lEta[tree.l2]) < upper)
 
+
+def lEtaSCA(tree, lower, upper):
+  return (lower <= abs(tree._lEtaSC[tree.l1]) < upper)
+
+def lEtaSCB(tree, lower, upper):
+  return (lower <= abs(tree._lEtaSC[tree.l2]) < upper)
+
 # def lArightCharge(tree)
 #   t._lCharge[c.l1] == t._lMatchCharge[c.l1]
 
@@ -89,7 +101,7 @@ def lEtaB(tree, lower, upper):
 #   return (lower <= tree.l2_pt < upper)
 
 
-continous_variables = {'mll': 'mll', 'ml1g': 'ml1g', 'photonPt': 'ph_pt', 'phJetDeltaR': 'phJetDeltaR', 'phLepDeltaR': phLepDeltaR, 'genPhMinDeltaR' : 'genPhMinDeltaR', 'phMVA': phMVA, 'chIso':chIso, 'puChargedHadronIso' : puChargedHadronIso, 'photonEta': phEta, 'PLphotonPt': 'PLph_pt', 'phSigma': phSigma, 'lEtaA': lEtaA, 'lEtaB': lEtaB, 'l1_pt': 'l1_pt', 'l2_pt': 'l2_pt'}
+continous_variables = {'mll': 'mll', 'ml1g': 'ml1g', 'photonPt': 'ph_pt', 'phJetDeltaR': 'phJetDeltaR', 'phLepDeltaR': phLepDeltaR, 'genPhMinDeltaR' : 'genPhMinDeltaR', 'phMVA': phMVA, 'chIso':chIso, 'puChargedHadronIso' : puChargedHadronIso, 'photonEta': phEta, 'PLphotonPt': 'PLph_pt', 'phSigma': phSigma, 'lEtaA': lEtaA, 'lEtaB': lEtaB, 'l1_pt': 'l1_pt', 'l2_pt': 'l2_pt', 'lEtaSCA': lEtaSCA, 'lEtaSCB': lEtaSCB}
 discrete_variables  = {'njet': 'njets', 'btag': 'nbjets', 'deepbtag': 'ndbjets', 'nphoton': 'nphotons', 'PLnphoton': 'PLnphotons', 'PLnjet': 'PLnjets', 'PLnb': 'PLndbjets', 'nvert': '_nVertex', 'nLep': 'nLepSel'}
 
 

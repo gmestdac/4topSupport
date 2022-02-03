@@ -163,7 +163,8 @@ newVars = makeBranches(outputTree, newBranches)
 
 
 c.egvar = 'Corr'
-c.muvar = 'Corr'
+# c.muvar = 'Corr'
+c.muvar = '' # other people don't use Rochester corrections
 
 
 # from topSupport.reduceTuple.objectSelection import setIDSelection, selectLeptons, selectPhotons, makeInvariantMasses, goodJets, bJets, makeDeltaR, reconstTops, getTopKinFit, storeLheTops

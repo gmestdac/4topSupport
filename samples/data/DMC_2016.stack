@@ -1,0 +1,30 @@
+-- MC
+DYMLM50Post_2016               DY              fillStyle     633
++DYMLM10Post_2016
++DYMLM50Pre_2016
++DYMLM10Pre_2016
+
+TT_DilPre_2016              TT              fillStyle     kGreen
++TT_DilPost_2016
+
+
+-- Data
+DoubleEGPre_2016                   data:ee,SF,all        errorStyle    kBlack                   isEE
++SingleElectronPre_2016
++DoubleEGPost_2016
++SingleElectronPost_2016
+
+
+DoubleMuonPre_2016                 data:mumu,SF,all      errorStyle    kBlack                   isMuMu
++SingleMuonPre_2016
++DoubleMuonPost_2016
++SingleMuonPost_2016
+
+
+MuonEGPre_2016                     data:emu,all          errorStyle    kBlack                   isEMu
++SingleMuonPre_2016
++SingleElectronPre_2016
++MuonEGPost_2016
++SingleMuonPost_2016
++SingleElectronPost_2016
+

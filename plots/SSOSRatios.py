@@ -94,8 +94,8 @@ for year in ['2017']:
           ss.SetBinContent(nx+1, i, 0.)
           ss.SetBinError(nx+1, i, 0.)
         
-        ss.SetBinContent(nx, ny, ss.GetBinContent(nx, nx) + ss.GetBinContent(nx+1, nx+1))
-        ss.SetBinError(nx, ny, (ss.GetBinError(nx, nx)**2. + ss.GetBinError(nx+1, nx+1)**2.)**0.5)
+        ss.SetBinContent(nx, ny, ss.GetBinContent(nx, ny) + ss.GetBinContent(nx+1, ny+1))
+        ss.SetBinError(nx, ny, (ss.GetBinError(nx, ny)**2. + ss.GetBinError(nx+1, ny+1)**2.)**0.5)
         ss.SetBinContent(nx+1, ny+1, 0.)
         ss.SetBinError(nx+1, ny+1, 0.)
 
@@ -110,8 +110,8 @@ for year in ['2017']:
           os.SetBinContent(nx+1, i, 0.)
           os.SetBinError(nx+1, i, 0.)
         
-        os.SetBinContent(nx, ny, os.GetBinContent(nx, nx) + os.GetBinContent(nx+1, nx+1))
-        os.SetBinError(nx, ny, (os.GetBinError(nx, nx)**2. + os.GetBinError(nx+1, nx+1)**2.)**0.5)
+        os.SetBinContent(nx, ny, os.GetBinContent(nx, ny) + os.GetBinContent(nx+1, ny+1))
+        os.SetBinError(nx, ny, (os.GetBinError(nx, ny)**2. + os.GetBinError(nx+1, ny+1)**2.)**0.5)
         os.SetBinContent(nx+1, ny+1, 0.)
         os.SetBinError(nx+1, ny+1, 0.)
 # TODO add overflows   ALSO FOR OS3

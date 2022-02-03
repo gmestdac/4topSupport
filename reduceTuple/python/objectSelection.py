@@ -31,90 +31,79 @@ def leptonE(tree, index):
   else:                    return getattr(tree, '_lE'+tree.egvar)[index]
 
 
-def baseElectronSelector(tree, index):
-  if not abs(tree._dxy[index]) < 0.05:                  return False
-  if not abs(tree._dz[index]) < 0.1:                    return False
-  if not abs(tree._3dIPSig[index]) < 8:                 return False
-  if not tree._lElectronMissingHits[index] < 2:         return False
-  if not tree._miniIso[index] < 0.4:                    return False
-  if not tree._lElectronPassConvVeto[index]:            return False
-  return True
+# # This ain't base at all, moving everything to electronSelector
+
+# def baseElectronSelector(tree, index):
+#   if leptonPt(tree, index) < 7. :                       return False
+#   if abs(tree._lEta[index]) > 2.5:     return False
+#   if not abs(tree._dxy[index]) < 0.05:                  return False
+#   if not abs(tree._dz[index]) < 0.1:                    return False
+#   if not abs(tree._3dIPSig[index]) < 8:                 return False
+#   if not tree._miniIso[index] < 0.4:                    return False
+#   if tree._lEtaSC[index] <= 1.479:
+#     if tree._lElectronSigmaIetaIeta[index] >= 0.011:    return False # no nots here
+#   else:
+#     if tree._lElectronSigmaIetaIeta[index] >= 0.030:    return False # no nots here
+#   if not tree._lElectronHOverE[index] < 0.10            return False
+#   if not tree._lElectronEInvMinusPInv[index] > -0.04    return False
+#   if not tree._lElectronPassConvVeto[index]:            return False
+#   if not tree._lElectronMissingHits[index] < 2:         return False
+#   return True
+
+
 
 def baseMuonSelector(tree, index):
-  if not tree._lPOGMedium[index]:                       return False
+  if leptonPt(tree, index) < 5.:                        return False
+  if abs(tree._lEta[index]) > 2.4:                      return False
   if not abs(tree._dxy[index]) < 0.05:                  return False
   if not abs(tree._dz[index]) < 0.1:                    return False
   if not abs(tree._3dIPSig[index]) < 8:                 return False
   if not tree._miniIso[index] < 0.4:                    return False
+  if not tree._lPOGMedium[index]:                       return False
   return True
 
 
 def looseMuonSelector(tree, index):
   if not baseMuonSelector(tree, index):                 return False
-  return tree._leptonMvaTOP[index] > 0.05
-
-# muons:
-
-# Base selection:
-# POG Medium ID
-# dxy < 0.05cm
-# dz < 0.1cm
-# SIP3D < 8
-# miniIso(fall17) < 0.4
-
-# LeptonMvaVLoose: leptonMvaTop>-0.45
-# LeptonMvaLoose: leptonMvaTop>0.05
-# LeptonMvaMedium: leptonMvaTop>0.65
-# LeptonMvaTight: leptonMvaTop>0.90
+  return True
 
 
 
 def muonSelector(tree, index):
   if not baseMuonSelector(tree, index):                 return False
-  return tree._leptonMvaTOP[index] > 0.65
+  return tree._leptonMvaTOP[index] > 0.4
+
 
 def electronSelector(tree, index):
-  if not baseElectronSelector(tree, index):             return False
+  # if not baseElectronSelector(tree, index):             return False
+  if leptonPt(tree, index) < 7. :                       return False
+  if abs(tree._lEta[index]) > 2.5:     return False
+  if not abs(tree._dxy[index]) < 0.05:                  return False
+  if not abs(tree._dz[index]) < 0.1:                    return False
+  if not abs(tree._3dIPSig[index]) < 8:                 return False
+  if not tree._miniIso[index] < 0.4:                    return False
+  if tree._lEtaSC[index] <= 1.479:
+    if tree._lElectronSigmaIetaIeta[index] >= 0.011:    return False # no nots here
+  else:
+    if tree._lElectronSigmaIetaIeta[index] >= 0.030:    return False # no nots here
+  if not tree._lElectronHOverE[index] < 0.10:           return False
+  if not tree._lElectronEInvMinusPInv[index] > -0.04:   return False
+  if not tree._lElectronPassConvVeto[index]:            return False
+  if not tree._lElectronMissingHits[index] < 2:         return False
+
   for i in xrange(tree._nMu): # cleaning electrons around muons
-    # need to do this with MVA Loose muons
     if not (tree._lFlavor[i] == 1 and looseMuonSelector(tree, i)): continue
     if deltaR(tree._lEta[i], tree._lEta[index], tree._lPhi[i], tree._lPhi[index]) < 0.05: return False
   if 1.4442 < abs(tree._lEtaSC[index]) < 1.566:         return False
   return (tree._leptonMvaTOP[index] > 0.4 and tree._lElectronChargeConst[index] )
 
 
-# electrons:
-
-# Baseline selection:
-# dxy < 0.05cm
-# dz < 0.1cm
-# SIP3D < 8
-# missing hits < 2
-# miniIso (fall17) < 0.4
-# conversion rejection
-
-# If I understand well, it seems the medium and tight workingpoints are only used in combination with the charge consistency requirement, so let's limit to 4 workingpoints for this next round:
-
-# LeptonMvaTight (base selection + leptonMvaTOP > 0.9)
-# LeptonMvaTightAnd3Charge
-
-# LeptonMvaMedium (base selection + leptonMvaTOP > 0.4)
-# LeptonMvaMediumAnd3Charge
-
-# LeptonMvaLoose (base selection + leptonMvaTOP > 0)
-
-# LeptonMvaVLoose (base selection + leptonMvaTOP > -.55)
-
-
-
-
 
 
 
 def leptonSelector(tree, index):
-  if leptonPt(tree, index) < 20:       return False
-  if abs(tree._lEta[index]) > 2.4:     return False
-  if   tree._lFlavor[index] == 0:      
+  if leptonPt(tree, index) < 10:       return False
+  if tree._lFlavor[index] == 0:      
     return electronSelector(tree, index)
   elif tree._lFlavor[index] == 1:      
     return muonSelector(tree, index)

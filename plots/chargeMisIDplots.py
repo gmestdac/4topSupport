@@ -99,6 +99,18 @@ onlyMC = args.tag.count('onlyMC')
 
 
 
+def chargeCheck(reco, match):
+  if match == 0: return 2
+  elif reco == match: return 0
+  else: return 1
+
+
+def chargeCheckBoth(reco1, match1, reco2, match2):
+  if reco1 == match1 and reco2 == match2: return 0
+  if reco1 != match1 and reco2 != match2: return 3  # both wrong, but no distinction, the order matters here
+  if match1 == 0 or match2 == 0: return 2
+  else: return 1  #1 single charge flip
+
 #
 # Create stack
 #
@@ -134,7 +146,7 @@ stack = createStack(tuplesFile   = os.path.expandvars(tupleFiles['2016' if args.
 # modTexLeg = [('(genuine)', ''), ('nonprompt-estimate', 'Nonprompt #gamma'), ('data', 'Data'), ('nonprompt', 'Nonprompt #gamma')] if args.tag.lower().count('earlytest') else []
 
 
-modTexLeg = []
+modTexLeg = [('chamidEstimate', 'estimate')]
 
 Plot.setDefaults(stack=stack, texY = ('(1/N) dN/dx' if normalize else 'Events / bin'), modTexLeg = modTexLeg )
 Plot2D.setDefaults(stack=stack)
@@ -152,18 +164,21 @@ def makePlotList():
   plotList.append(Plot('totYield',                   'total yield',                           lambda c : 0.5,                                                (1, 0, 1),   histModifications=xAxisLabels(['yield'])))
 
   plotList.append(Plot('l1_pt',                      'p_{T}(l_{1}) [GeV]',                    lambda c : c.l1_pt,                                            (20, 20, 220)))
-  plotList.append(Plot('l1_eta',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 (15, 0, 2.4)))
+  plotList.append(Plot('l1_eta',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 (20, 0, 2.5)))
   plotList.append(Plot('l2_pt',                      'p_{T}(l_{2}) [GeV]',                    lambda c : c.l2_pt,                                            (20, 20, 220)))
-  plotList.append(Plot('l2_eta',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 (15, 0, 2.4)))
+  plotList.append(Plot('l2_eta',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 (20, 0, 2.5)))
 
   plotList.append(Plot('l1_pt_small',                      'p_{T}(l_{1}) [GeV]',                    lambda c : c.l1_pt,                                            (100, 20, 120)))
-  plotList.append(Plot('l1_eta_small',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 (80, 0, 2.4)))
+  plotList.append(Plot('l1_eta_small',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 (75, 0, 2.5)))
   plotList.append(Plot('l2_pt_small',                      'p_{T}(l_{2}) [GeV]',                    lambda c : c.l2_pt,                                            (100, 20, 120)))
-  plotList.append(Plot('l2_eta_small',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 (80, 0, 2.4)))
+  plotList.append(Plot('l2_eta_small',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 (75, 0, 2.5)))
+
+  plotList.append(Plot('l1_pt_medBining',                      'p_{T}(l_{1}) [GeV]',                    lambda c : c.l1_pt,                                            (10, 20, 120)))
+  plotList.append(Plot('l2_pt_medBining',                      'p_{T}(l_{2}) [GeV]',                    lambda c : c.l2_pt,                                            (10, 20, 80)))
 
 
-  plotList.append(Plot('l1_eta_EB',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                     [0., 1.479, 2.4], histModifications=xAxisLabels(['Barrel', 'Endcap']) ))
-  plotList.append(Plot('l2_eta_EB',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                     [0., 1.479, 2.4], histModifications=xAxisLabels(['Barrel', 'Endcap']) ))
+  plotList.append(Plot('l1_eta_EB',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                     [0., 1.479, 2.5], histModifications=xAxisLabels(['Barrel', 'Endcap']) ))
+  plotList.append(Plot('l2_eta_EB',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                     [0., 1.479, 2.5], histModifications=xAxisLabels(['Barrel', 'Endcap']) ))
 
   plotList.append(Plot('dl_mass',                    'm(ll) [GeV]',                           lambda c : c.mll,                                              (20, 0, 200)))
   plotList.append(Plot('dl_mass_small',              'm(ll) [GeV]',                           lambda c : c.mll,                                              (100, 0, 200)))
@@ -172,6 +187,11 @@ def makePlotList():
 
   plotList.append(Plot('l1_chargeCheck',   '',        lambda c : (c._lCharge[c.l1] == c._lMatchCharge[c.l1]) ,         (2, 0, 2), histModifications=xAxisLabels(['charge misId', 'correct charge'])))
   plotList.append(Plot('l2_chargeCheck',   '',        lambda c : (c._lCharge[c.l2] == c._lMatchCharge[c.l2]) ,         (2, 0, 2), histModifications=xAxisLabels(['charge misId', 'correct charge'])))
+
+  plotList.append(Plot('l1_chargeCheckB',   '',        lambda c : chargeCheck(c._lCharge[c.l1], c._lMatchCharge[c.l1]) ,         (3, 0, 3), histModifications=xAxisLabels(['correct', 'opposite', 'conversion'])))
+  plotList.append(Plot('l2_chargeCheckB',   '',        lambda c : chargeCheck(c._lCharge[c.l2], c._lMatchCharge[c.l2]) ,         (3, 0, 3), histModifications=xAxisLabels(['correct', 'opposite', 'conversion'])))
+
+  plotList.append(Plot('chargeCheckBoth',   '',        lambda c : chargeCheckBoth(c._lCharge[c.l1], c._lMatchCharge[c.l1], c._lCharge[c.l2], c._lMatchCharge[c.l2]) ,         (4, 0, 4), histModifications=xAxisLabels(['both correct', 'one flip', 'one conversion', 'both wrong'])))
 
 
   plotList.append(Plot('nlepSel',                      'Number of selected leptons',                        lambda c : c.nLepSel,                                      (8, -.5, 7.5)))
@@ -185,28 +205,47 @@ def makePlotList():
   # plotList.append(Plot('j2_eta',                     '|#eta|(j_{2})',                         lambda c : abs(c._jetEta[c.j2]),                               (15, 0, 2.4)))
 
 
-  plotList.append(Plot2D('eta2D',          '|#eta|(l_{A})',           lambda c :  max(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),               (8, 0, 2.4),          '|#eta|(l_{B})',          lambda c : min(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),              (8, 0, 2.4)))
-  plotList.append(Plot2D('eta2DEB',        '|#eta|(l_{A})',           lambda c :  max(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),               [0., 1.479, 2.4],     '|#eta|(l_{B})',          lambda c : min(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),              [0., 1.479, 2.4]))
+  plotList.append(Plot2D('eta2D',          '|#eta|(l_{A})',           lambda c :  max(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),               (10, 0, 2.5),          '|#eta|(l_{B})',          lambda c : min(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),              (10, 0, 2.5)))
+  plotList.append(Plot2D('eta2DEB',        '|#eta|(l_{A})',           lambda c :  max(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),               [0., 1.479, 2.5],     '|#eta|(l_{B})',          lambda c : min(abs(c._lEta[c.l1]), abs(c._lEta[c.l2])),              [0., 1.479, 2.5]))
   plotList.append(Plot2D('pt2D',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               (6, 20, 140),          'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              (6, 20, 140)))
 
-  plotList.append(Plot2D('ptEtaTTbinning_l1',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
-  plotList.append(Plot2D('ptEtaTTbinning_l2',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
+  plotList.append(Plot2D('ptEtaTTbinning_l1',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
+  plotList.append(Plot2D('ptEtaTTbinning_l2',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
 
-  plotList.append(Plot2D('ptEtaTTbinning_l1_B',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20., 25.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
-  plotList.append(Plot2D('ptEtaTTbinning_l2_B',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20., 25.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.4]))
+  plotList.append(Plot2D('ptEtaTTbinning_l1_B',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20., 25.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
+  plotList.append(Plot2D('ptEtaTTbinning_l2_B',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20., 25.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0. , 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
 
 
-  plotList.append(Plot2D('pt2D_A',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 60., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 40., 60.]))
-  plotList.append(Plot2D('pt2D_B',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 40., 60., 80. ],                   'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 40., 50.]))
-  plotList.append(Plot2D('pt2D_C',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 30, 40., 50., 60., 70., 80. ],     'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 40., 50.]))
-  plotList.append(Plot2D('pt2D_D',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 30, 40., 50., 60., 70., 80. ],     'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 25., 30., 35., 40., 45., 50., 60.]))
-  plotList.append(Plot2D('pt2D_E',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 40., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 60.]))
-  plotList.append(Plot2D('pt2D_F',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 50., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 35., 60.]))
-  plotList.append(Plot2D('pt2D_G',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 45., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 32., 60.]))
+  plotList.append(Plot2D('ptEtaNEWbinning_l1',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
+  plotList.append(Plot2D('ptEtaNEWbinning_l2',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
+
+
+  plotList.append(Plot('l1_pt_NEW',                      'p_{T}(l_{1}) [GeV]',                    lambda c : c.l1_pt,                                            [20.,  30., 45., 60. ,100., 200.]))
+  plotList.append(Plot('l2_pt_NEW',                      'p_{T}(l_{2}) [GeV]',                    lambda c : c.l2_pt,                                            [20.,  30., 45., 60. ,100., 200.]))
+  plotList.append(Plot('l1_eta_NEW',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
+  plotList.append(Plot('l2_eta_NEW',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
+
+
+  # plotList.append(Plot2D('pt2D_A',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 60., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 40., 60.]))
+  # plotList.append(Plot2D('pt2D_B',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 40., 60., 80. ],                   'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 40., 50.]))
+  # plotList.append(Plot2D('pt2D_C',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 30, 40., 50., 60., 70., 80. ],     'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 40., 50.]))
+  # plotList.append(Plot2D('pt2D_D',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 30, 40., 50., 60., 70., 80. ],     'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 25., 30., 35., 40., 45., 50., 60.]))
+  # plotList.append(Plot2D('pt2D_E',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 40., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 30., 60.]))
+  # plotList.append(Plot2D('pt2D_F',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 50., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 35., 60.]))
+  # plotList.append(Plot2D('pt2D_G',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 45., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 32., 60.]))
 
   plotList.append(Plot2D('pt2D_H',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 55., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 37., 60.]))
   plotList.append(Plot2D('pt2D_HA',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 50., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 37., 60.]))
   plotList.append(Plot2D('pt2D_HB',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 52., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 37., 60.]))
+
+  # plotList.append(Plot2D('ptetasum2D',      '|#eta|(l_{1})+|#eta|(l_{2})',    lambda c : abs(c._lEta[c.l1])+abs(c._lEta[c.l2]),          [0., 1.4, 2.1,  2.8, 3.8, 4.8],      'p_{T}(l_{1})+ p_{T}(l_{2}) [GeV]',          lambda c :  c.l1_pt + c.l2_pt,     [40., 60., 80., 100., 160.]))
+  # plotList.append(Plot('ptsum',    'p_{T}(l_{1})+ p_{T}(l_{2}) [GeV]',      lambda c :  c.l1_pt + c.l2_pt,     [40., 60., 80., 100., 160.]))
+  # plotList.append(Plot('etasum',   '|#eta|(l_{1})+|#eta|(l_{2})',           lambda c : abs(c._lEta[c.l1])+abs(c._lEta[c.l2]),          [0., 1.4, 2.1,  2.8, 3.8, 4.8] ))
+
+  # plotList.append(Plot2D('ptetasum2DfitA',      '|#eta|(l_{1})+|#eta|(l_{2})',    lambda c : abs(c._lEta[c.l1])+abs(c._lEta[c.l2]),        (10, 0., 4.8),      'p_{T}(l_{1})+ p_{T}(l_{2}) [GeV]',          lambda c :  c.l1_pt + c.l2_pt,     (10, 40., 200.)))
+  # plotList.append(Plot2D('ptetasum2DfitB',      '|#eta|(l_{1})+|#eta|(l_{2})',    lambda c : abs(c._lEta[c.l1])+abs(c._lEta[c.l2]),        (20, 0., 4.8),      'p_{T}(l_{1})+ p_{T}(l_{2}) [GeV]',          lambda c :  c.l1_pt + c.l2_pt,     (20, 40., 200.)))
+  # plotList.append(Plot2D('pt2D_fitA',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               (5, 20., 120.),                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              (6, 20., 80.)))
+  # plotList.append(Plot2D('pt2D_fitB',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               (10, 20., 120.),                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              (12, 20., 80.)))
 
   # pylint: enable=C0301
 
@@ -238,8 +277,13 @@ lumiScalesRounded['2016post'] = 16.8
 
 
 from topSupport.tools.style import drawLumi, drawLumi2D, setDefault, ttgGeneralStyle
+# from topSupport.plots.SSOSweight import ssosWeight
 from topSupport.plots.chamidWeight import chamidWeight
-from topSupport.plots.SSOSweight import ssosWeight
+
+# NOTE WARNING
+# from topSupport.plots.SSOSweight import ssosWeight
+
+# from topSupport.plots.summingSSOSweight import ssosWeight
 
 setDefault()
 ttgGeneralStyle()
@@ -284,7 +328,9 @@ for year in years:
 
     # reduceType = 'chaB'
 
-    reduceType = 'chaF'
+    # reduceType = 'chaNEW'
+    # reduceType = 'chaEta'
+    reduceType = 'chaREL'
 
     # reduceType = 'chaD'
     # if args.year == '2017' or args.year == '2016':
@@ -297,7 +343,7 @@ for year in years:
     chamidEst = chamidWeight(year)
 
     for sample in sum(stack, []):
-      ddEst = ssosWeight(year, sample.isData)
+      # ddEst = ssosWeight(year, sample.isData)
 
       chamidEstimate        = sample.texName.count('chamidEstimate')
       ddEstimate            = sample.texName.count('ddEstimate')
@@ -306,6 +352,15 @@ for year in years:
         selection = args.selection.replace('SS', 'OS')
       else:
         selection = args.selection
+      
+      if args.tag.count('DCorr'):
+        if year == '2016': chamidCorr = 0.966
+        elif year == '2017': chamidCorr = 1.509
+        elif year == '2018': chamidCorr = 1.515
+        else: 
+          log.warning('invalid year '+ year + 'for charge misId CF')
+      else:
+        chamidCorr = 1.
 
       cutString, passingFunctions = cutStringAndFunctions(selection, args.channel)
 
@@ -320,8 +375,8 @@ for year in years:
         elif sample.name.lower().count('pre'):
           lumiScale = 19.5
         else:
-          log.warning('2016 sample with no pre/post designation, exiting')
-          exit()
+          log.warning('2016 sample with no pre/post designation, using full luminosity')
+          lumiScale = lumiScales[c.year]
       else:
         lumiScale = lumiScales[c.year]
       c.data = sample.isData
@@ -335,21 +390,24 @@ for year in years:
 
         
         if chamidEstimate:
-          chamidEstWeight = chamidEst.getWeight(c.l1_pt, c._lEta[c.l1], c.l2_pt, c._lEta[c.l2])
+          chamidEstWeight = chamidEst.getWeight(c.l1_pt, c._lEta[c.l1], c.l2_pt, c._lEta[c.l2]) * chamidCorr
         else:
           chamidEstWeight = 1.
 
-        if ddEstimate:
-          ddEstWeight = ddEst.getWeight(c.l1_pt, c._lEtaSC[c.l1], c.l2_pt, c._lEtaSC[c.l2])
-        else:
-          ddEstWeight = 1.
+        # if ddEstimate:
+        #   ddEstWeight = ddEst.getWeight(c.l1_pt, c._lEtaSC[c.l1], c.l2_pt, c._lEtaSC[c.l2])
+        #   # ddEstWeight = 0.1461634*c._lEta[c.l1] + 0.1454445*c._lEta[c.l2] -0.0000495 *c.l1_pt -0.0004385 *c.l2_pt - 0.1755677
+        #   # SOMETHING THAT CAN BE DONE WITH THE FACT THAT THEY ARE SO SIMILAR FOR L1 / L2?
+        #   # log.info(ddEstWeight)
+        # else:
+        #   ddEstWeight = 1.
 
 
-        if sample.isData: eventWeight = 1. * chamidEstWeight * ddEstWeight
+        # if sample.isData: eventWeight = 1. * chamidEstWeight * ddEstWeight
+        if sample.isData: eventWeight = 1. * chamidEstWeight
         elif noWeight:      eventWeight = 1.
-        else:             eventWeight = c.genWeight*lumiScale * chamidEstWeight * ddEstWeight
-        # log.info(c.genWeight)
-        # log.info(lumiScale)
+        # else:             eventWeight = c.genWeight*lumiScale * chamidEstWeight * ddEstWeight
+        else:             eventWeight = c.genWeight*lumiScale * chamidEstWeight
 
 
         # else:             eventWeight = c.genWeight*c.puWeight*c.lWeight*c.lTrackWeight*c.phWeight*c.bTagWeight*c.triggerWeight*prefireWeight*lumiScale*c.ISRWeight*c.FSRWeight*c.PVWeight*estWeight*zgw
@@ -447,6 +505,7 @@ for year in years:
                     sorting           = False,
                     yRange            = yRange if yRange else (0.003 if logY else 0.0001, "auto"),
                     drawObjects       = drawLumi(None, lumiScalesRounded[year + VFPcase ], isOnlySim=(args.channel=='noData' or onlyMC)),
+                    uncBandRatio = (0.15 if args.tag.count('Closure') else None)  , 
                     **extraArgs
           )
           extraArgs['saveGitInfo'] = False

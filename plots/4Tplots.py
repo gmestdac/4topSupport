@@ -268,6 +268,9 @@ for year in years:
 
         if not c.nll == 4: continue
 
+        # if not c.nll > 2: continue
+
+        # if not c._gen_lFlavor[sortedLeps(c, 2)] == 0: continue
         # if not c.nhtau == 0: continue
         # log.info(c._gen_lPt[c.llep1])
         # log.info(c._gen_lPt[c.llep2])

@@ -512,7 +512,7 @@ class Plot:
     box = ROOT.TBox(self.xmin, 1-unc, self.xmax, 1+unc)
     # box.SetLineColor(ROOT.kBlack)
     box.SetFillStyle(1001)
-    box.SetFillColorAlpha(ROOT.kYellow, 0.5)
+    box.SetFillColorAlpha(1, 0.15)
     return box
 
   #
@@ -681,7 +681,10 @@ class Plot:
     # self.removeEmptyBins(yMax, self.ymin if (logY or self.ymin < 0) else yMax.GetMaximum()/150.)
     # self.removeEmptyBins(yMax, self.ymin if (logY or self.ymin < 0) else yMax.GetMaximum()/100.)
     # self.removeEmptyBins(yMax, self.ymin if (logY or self.ymin < 0) else yMax.GetMaximum()/60.)
-    self.removeEmptyBins(yMax, self.ymin if (logY or self.ymin < 0) else yMax.GetMaximum()/999999999.)
+    # self.removeEmptyBins(yMax, self.ymin if (logY or self.ymin < 0) else yMax.GetMaximum()/999999999.)
+
+    # in other words disable bin removal. Can't just comment this out so...
+    self.removeEmptyBins(yMax, -1)
 
 
     # If legend specified, add it to the drawObjects
