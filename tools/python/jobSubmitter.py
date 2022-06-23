@@ -5,6 +5,8 @@ import os, time, subprocess
 from datetime import datetime
 import htcondor # in T2B install using   python -m pip install --user htcondor
 
+import pdb
+
 def system(command):
   return subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
 
@@ -54,13 +56,21 @@ def launchCondor(command, logfile, checkQueue=False, wallTime='15', queue='local
                             "request_cpus": str(cores),
                             "log":    logfile})
                             
-  schedd = htcondor.Schedd() 
+  schedd = htcondor.Schedd()
+  # log.info('----transa----')
+  # log.info(schedd.transaction())
   try:    
     cluster_id = None
     with schedd.transaction() as txn:
+      log.info('----txn----')
+      log.info(txn)
       cluster_id = jobSub.queue(txn, 1)
+      log.info('----clID----')
+      log.info(cluster_id)
+      pdb.set_trace()
   except Exception as e: 
     cluster_id = 'failed'
+    log.info('----exception----')
     log.info(e)
   log.info('Job launched under ID: ' + str(cluster_id))
   # TODO deal with failing scenario's?

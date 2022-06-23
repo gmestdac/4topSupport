@@ -1,0 +1,73 @@
+go to   CMSSW_10_6_27heavyNeutrino/multilep/test/sampleLists/
+or wherever you put it
+
+create a text file there, named something like
+singlelepton_MC_2018_somename.txt
+
+now I'm pretty sure the filename doesn't really matter, but might as well keep the year and "MC" in there for clarity
+
+at the start of the file you can put flags that the heavyNeutrino to store extra info:
++storeLheParticles
++storeParticleLevel
++storeJecSources
++storeGenParticles
++storeAllTauID
+
+You for sure need
++storeGenParticles
+and you can ask Joscha but maybe 
++storeLheParticles 
+as well
+
+in the file itself you will put a tag referring to some basic skimming, followed by ":" then the sample name/path
+options relevant to you are
+
+singlelep
+dilep
+noskim
+
+since you want all gen info, I'll assume you want no skimming as well:
+
+
+So for example you end up with a file named
+
+noskim_MC_2018_coronawavefour.txt
+
+in which you have the following text:
++storeLheParticles
++storeGenParticles
+noskim:/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM
+
+
+Now I put "noskim" in the filename so the output will also have that in the name --> easy to remember what skimming was used
+If you want to submit multiple samples just put more noskim:/whatever lines under it
+
+Now the actual submission:
+
+go to heavyNeutrino/multilep/test/  in your terminal
+run "cmsenv"
+then get a grid proxy, run "voms-proxy-init --rfc --voms cms -valid 192:00"
+then run "./submitAll.py ./sampleLists/noskim_MC_2018_coronawavefour.txt"
+
+it might ask for your proxy password again, if so enter that
+it might ask you if you are sure? y|n,  if so respond with "y"
+
+it will take surprisingly long per sample, that's normal
+it will tell you if it was submitted successfully
+
+potential problems:  
+- you have no clue what a grid proxy is --> let Joscha or any one of us know
+- submitting the sample failed for some reason
+   --> figure out what's wrong (ask for help), but remember to go into the folder named "crab" first, and delete the folder corresponding to the sample you just attempted to submit
+  if you don't it will cause problems when you try again
+
+output will appear on pnfs:
+/pnfs/iihe/cms/store/user/gmestdac/heavyneutrino
+but replace gmestdac by your username
+
+checking the progress can be done in 2 ways:
+1: run "crab status crab/noskim_MC_2018_coronawavefour/whatever/whatever"
+2: check grafana, it has a bunch of crap so I'll point you to the page you need:
+https://monit-grafana.cern.ch/d/cmsTMGlobal/cms-tasks-monitoring-globalview?orgId=11&from=now-24h&to=now
+just select your username there and adjust the time to how recent it was submitted
+there's always a delay with grafana, so don't expect your submission to pop up immediately
