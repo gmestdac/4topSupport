@@ -25,7 +25,7 @@ class chamidWeight:
       self.weightHist = weightHist
       assert self.weightHist
     except:
-      log.warning('No charge misID ratios avaialable, no problem if not used later')
+      log.warning('No charge misID ratios available, no problem if not used later')
 
   def getWeight(self, pt1, eta1, pt2, eta2):
     # if tree.chamidEstimate:

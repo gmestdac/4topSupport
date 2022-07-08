@@ -241,13 +241,14 @@ def drawTex(line, align=11, size=0.045, angle=0):
 #
 # Common CMS information
 #
-def drawLumi(dataMCScale, lumiScale, isOnlySim=False):
+def drawLumi(dataMCScale, lumiScale, isOnlySim=False, onlyLum = False):
   lines = [
     (11, (ROOT.gStyle.GetPadLeftMargin()+0.05,  1-ROOT.gStyle.GetPadTopMargin()+0.01, "#bf{CMS} #it{Simulation}" if isOnlySim else "#bf{CMS} #it{Preliminary}")),
     (31, (1-ROOT.gStyle.GetPadRightMargin()-0.04, 1-ROOT.gStyle.GetPadTopMargin()+0.01, ("%3.0f fb{}^{#minus 1} (13 TeV)"%lumiScale) + ("Scale %3.2f"%dataMCScale if dataMCScale else '')))
 
   ]
-  return [drawTex(l, align, size=0.05) for align, l in lines]
+  if onlyLum: lines = [lines[1]]
+  return [drawTex(l, align, size=0.07) for align, l in lines]
 
 def drawLumi2D(dataMCScale, lumiScale, isOnlySim=False):
   lines = [

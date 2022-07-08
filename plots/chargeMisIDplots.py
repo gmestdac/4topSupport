@@ -146,7 +146,7 @@ stack = createStack(tuplesFile   = os.path.expandvars(tupleFiles['2016' if args.
 # modTexLeg = [('(genuine)', ''), ('nonprompt-estimate', 'Nonprompt #gamma'), ('data', 'Data'), ('nonprompt', 'Nonprompt #gamma')] if args.tag.lower().count('earlytest') else []
 
 
-modTexLeg = [('chamidEstimate', 'estimate')]
+modTexLeg = [('DY TT chamidEstimate (MC)', 'estimate'), ('chamidEstimate', 'estimate'), ('TT', 't#bar{t}')]
 
 Plot.setDefaults(stack=stack, texY = ('(1/N) dN/dx' if normalize else 'Events / bin'), modTexLeg = modTexLeg )
 Plot2D.setDefaults(stack=stack)
@@ -504,7 +504,7 @@ for year in years:
                     logY              = logY,
                     sorting           = False,
                     yRange            = yRange if yRange else (0.003 if logY else 0.0001, "auto"),
-                    drawObjects       = drawLumi(None, lumiScalesRounded[year + VFPcase ], isOnlySim=(args.channel=='noData' or onlyMC)),
+                    drawObjects       = drawLumi(None, lumiScalesRounded[year + VFPcase ], isOnlySim=(args.channel=='noData' or onlyMC), onlyLum=True),
                     uncBandRatio = (0.15 if args.tag.count('Closure') else None)  , 
                     **extraArgs
           )

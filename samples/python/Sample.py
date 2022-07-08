@@ -106,6 +106,8 @@ class Sample:                                                                   
     log.info(self.year)
     log.info(splitData)
     log.info(self.productionLabel)
+    # TODO note: for dealing with resubmits probably need a wildard after productionlabel on the TWO LINES below BUT ALSO in initTree? 
+    # Maybe not, only this function is relevant for unskimmed I guess
     if splitData: runDirs = os.path.join(self.path, 'crab_Run' + self.year + splitData + '*' + self.productionLabel)
     else:         runDirs = os.path.join(self.path, '*' + self.productionLabel)
     listOfFiles = []

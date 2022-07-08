@@ -62,12 +62,12 @@ def launchCondor(command, logfile, checkQueue=False, wallTime='15', queue='local
   try:    
     cluster_id = None
     with schedd.transaction() as txn:
-      log.info('----txn----')
-      log.info(txn)
+      # log.info('----txn----')
+      # log.info(txn)
       cluster_id = jobSub.queue(txn, 1)
-      log.info('----clID----')
-      log.info(cluster_id)
-      pdb.set_trace()
+      # log.info('----clID----')
+      # log.info(cluster_id)
+      # pdb.set_trace()
   except Exception as e: 
     cluster_id = 'failed'
     log.info('----exception----')
