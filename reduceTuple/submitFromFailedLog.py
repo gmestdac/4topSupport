@@ -15,7 +15,7 @@ argParser.add_argument('--tolerant', action='store_true', default=False,  help='
 argParser.add_argument('--printPaths', action='store_true', default=False,  help='print the paths to the failed log files, for quick opening')
 argParser.add_argument('--cleanFolders',   action='store_true', default=False,  help='Remove empty folders')
 argParser.add_argument('--age',   action='store', default=999., type=float,  help='ignore logs older than x days')
-argParser.add_argument('--subAlreadyExists',   action='store_true', default=False,  help='submit/show jobsy that are done because the output already existed')
+argParser.add_argument('--subAlreadyExists',   action='store_true', default=False,  help='submit/show jobs that are done because the output already existed')
 args = argParser.parse_args()
 
 from topSupport.tools.logger import getLogger
@@ -64,7 +64,7 @@ for logfile in getLogs('./log'):
     log.info(logfile)
     continue
   if args.select and not all(command.count(sel) for sel in args.select): continue
-  if (not finished or ((rootError or miscProblem) and not args.tolerant)) and command: jobsToSubmit.append(( command + (' --overwrite' if (command.count('reduceTuple') and not command.count('--overwrite')) else ''), logfile))
+  if (not finished or ((rootError or miscProblem) and not args.tolerant)) and command: jobsToSubmit.append(( command + (' --overwrite' if ((command.count('reduceTuple') or command.count('chargeMisIDReduce')) and not command.count('--overwrite')) else ''), logfile))
   if alreadyExists and args.subAlreadyExists:
     log.info('already exists case: ' + logfile)
     if command: jobsToSubmit.append((command + ' --overwrite', logfile))

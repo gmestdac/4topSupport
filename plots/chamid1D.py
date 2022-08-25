@@ -33,10 +33,10 @@ labels = {
           'LEP_pt_NEW' :          'p_{T}' ,
           }
 
-l1RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat/ee/SEL-l1NCF/'
-l1WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat/ee/SEL-l1CF/'
-l2RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat/ee/SEL-l2NCF/'
-l2WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat/ee/SEL-l2CF/'
+l1RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat-FINAL/ee/SEL-l1NCF/'
+l1WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat-FINAL/ee/SEL-l1CF/'
+l2RPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat-FINAL/ee/SEL-l2NCF/'
+l2WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC-norat-FINAL/ee/SEL-l2CF/'
 
 
 # l1 en l2 moeten zelfde binning hebben
@@ -44,7 +44,7 @@ l2WPath = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-onlyPROC
 for year in ['2016', '2017' , '2018']:
   for plot in ['LEP_pt_NEW', 'LEP_eta_NEW']:
     for sel in ['nLep2-lepsPrompt']:
-    # for sel in ['nLep2-lepsPrompt', 'onZ-nLep2-lepsPrompt']:
+    # for sel in ['onZ-nLep2-lepsPrompt']:
       log.info('plotting for ' + year + ' ' + plot)
       canv = ROOT.TCanvas(year + plot, '', 1200, 1100)
       

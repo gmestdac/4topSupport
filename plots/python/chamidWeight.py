@@ -10,18 +10,18 @@ import ROOT
 ROOT.TH2.SetDefaultSumw2()
 ROOT.TH1.SetDefaultSumw2()
 
-sourceHists ={'2016' : '/storage_mnt/storage/user/gmestdac/TTTT/CMSSW_10_2_10/src/topSupport/plots/python/chamidWeights/chamid_2016_DYpile_onZ-nLep2-lepsPrompt_ptEtaNEWbinning.pkl',
-              '2017' : '/storage_mnt/storage/user/gmestdac/TTTT/CMSSW_10_2_10/src/topSupport/plots/python/chamidWeights/chamid_2017_DYpile_onZ-nLep2-lepsPrompt_ptEtaNEWbinning.pkl',
-              '2018' : '/storage_mnt/storage/user/gmestdac/TTTT/CMSSW_10_2_10/src/topSupport/plots/python/chamidWeights/chamid_2018_DYpile_onZ-nLep2-lepsPrompt_ptEtaNEWbinning.pkl'}
+sourceHists ={'2016' : '/storage_mnt/storage/user/gmestdac/TTTT/CMSSW_10_2_10/src/topSupport/plots/python/chamidWeightsVERSION/chamid_2016_DYpile_onZ-nLep2-lepsPrompt_ptEtaNEWbinning.pkl',
+              '2017' : '/storage_mnt/storage/user/gmestdac/TTTT/CMSSW_10_2_10/src/topSupport/plots/python/chamidWeightsVERSION/chamid_2017_DYpile_onZ-nLep2-lepsPrompt_ptEtaNEWbinning.pkl',
+              '2018' : '/storage_mnt/storage/user/gmestdac/TTTT/CMSSW_10_2_10/src/topSupport/plots/python/chamidWeightsVERSION/chamid_2018_DYpile_onZ-nLep2-lepsPrompt_ptEtaNEWbinning.pkl'}
 
 
 
 
 
 class chamidWeight:
-  def __init__(self, year):
+  def __init__(self, year, version = 'NaN'):
     try:
-      weightHist = pickle.load(open(sourceHists[year], 'r'))
+      weightHist = pickle.load(open(sourceHists[year].replace('VERSION', version), 'r'))
       self.weightHist = weightHist
       assert self.weightHist
     except:

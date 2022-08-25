@@ -167,8 +167,11 @@ c.egvar = 'Corr'
 c.muvar = '' # other people don't use Rochester corrections
 
 
-# from topSupport.reduceTuple.objectSelection import setIDSelection, selectLeptons, selectPhotons, makeInvariantMasses, goodJets, bJets, makeDeltaR, reconstTops, getTopKinFit, storeLheTops
-from topSupport.reduceTuple.objectSelection import selectLeptons, makeInvariantMasses
+if args.type.lower().count('v1'):
+  from topSupport.reduceTuple.objSelV1NEW import selectLeptons, makeInvariantMasses
+else:
+  log.info('something is went wrong here, we are not doing v2 anymore')
+  exit(0)
 
 
 

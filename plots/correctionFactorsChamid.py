@@ -19,7 +19,7 @@ ROOT.gStyle.SetPaintTextFormat("3.2f")
 
 
 # TODO DON"T FORGET TO UPDATE!
-path = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-chamidClosureData/ee/onZ-nLep2-SS/dl_mass.pkl'
+path = '/storage_mnt/storage/user/gmestdac/public_html/TTTT/YEAR/hpe-chamidClosureData-FINAL/ee/onZ-nLep2-SS/totYield.pkl'
 
 
 def sumHists(dict, sumkeys = [], antiSumKeys = []):
@@ -33,7 +33,7 @@ def sumHists(dict, sumkeys = [], antiSumKeys = []):
 
 
 for year in ['2016', '2017' , '2018']:
-  direct    = sumHists(pickle.load(open(path.replace('YEAR', year), 'r'))['dl_mass'], [] , ['chamidEstimate'])
-  estimate  = sumHists(pickle.load(open(path.replace('YEAR', year), 'r'))['dl_mass'], ['chamidEstimate'] , )
+  direct    = sumHists(pickle.load(open(path.replace('YEAR', year), 'r'))['totYield'], [] , ['chamidEstimate'])
+  estimate  = sumHists(pickle.load(open(path.replace('YEAR', year), 'r'))['totYield'], ['chamidEstimate'] , )
   # total prediction needs to be estimate * CF, so here it's direct / estimate
   print year + ' CF: ' + str(round(direct.Integral() / estimate.Integral(), 3))

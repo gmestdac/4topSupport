@@ -108,7 +108,8 @@ class Sample:                                                                   
     log.info(self.productionLabel)
     # TODO note: for dealing with resubmits probably need a wildard after productionlabel on the TWO LINES below BUT ALSO in initTree? 
     # Maybe not, only this function is relevant for unskimmed I guess
-    if splitData: runDirs = os.path.join(self.path, 'crab_Run' + self.year + splitData + '*' + self.productionLabel)
+    if splitData: runDirs = os.path.join(self.path, 'crab_Run' + self.year + splitData + '*' + self.productionLabel + '*')
+    # ne resubmissions for MC it seems, so not adding a wildcard at the end to be safe
     else:         runDirs = os.path.join(self.path, '*' + self.productionLabel)
     listOfFiles = []
     for runDir in glob.glob(runDirs):

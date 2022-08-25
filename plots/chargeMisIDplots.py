@@ -219,11 +219,18 @@ def makePlotList():
   plotList.append(Plot2D('ptEtaNEWbinning_l1',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
   plotList.append(Plot2D('ptEtaNEWbinning_l2',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
 
+  plotList.append(Plot2D('ptEtaNEWsplitLast_l1',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{1})',          lambda c : abs(c._lEta[c.l1]),         [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
+  plotList.append(Plot2D('ptEtaNEWsplitLast_l2',          'p_{T}(l_{2}) [GeV]',           lambda c : c.l2_pt,           [20.,  30., 45., 60. ,100., 200.],          '|#eta|(l_{2})',          lambda c : abs(c._lEta[c.l2]),         [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
+
 
   plotList.append(Plot('l1_pt_NEW',                      'p_{T}(l_{1}) [GeV]',                    lambda c : c.l1_pt,                                            [20.,  30., 45., 60. ,100., 200.]))
   plotList.append(Plot('l2_pt_NEW',                      'p_{T}(l_{2}) [GeV]',                    lambda c : c.l2_pt,                                            [20.,  30., 45., 60. ,100., 200.]))
   plotList.append(Plot('l1_eta_NEW',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
   plotList.append(Plot('l2_eta_NEW',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5]))
+
+
+  plotList.append(Plot('l1_eta_NEWsplitLast',                     '|#eta|(l_{1})',                         lambda c : abs(c._lEta[c.l1]),                                 [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
+  plotList.append(Plot('l2_eta_NEWsplitLast',                     '|#eta|(l_{2})',                         lambda c : abs(c._lEta[c.l2]),                                 [0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5]))
 
 
   # plotList.append(Plot2D('pt2D_A',          'p_{T}(l_{1}) [GeV]',           lambda c : c.l1_pt,               [20., 60., 100 ],                        'p_{T}(l_{2}) [GeV]',          lambda c : c.l2_pt,              [20., 40., 60.]))
@@ -330,7 +337,24 @@ for year in years:
 
     # reduceType = 'chaNEW'
     # reduceType = 'chaEta'
-    reduceType = 'chaREL'
+    # reduceType = 'chaREL'
+    # reduceType = 'chaNVA'
+
+
+
+    # if args.tag.lower().count('v1'):
+    #   reduceType = 'chaNewV1'
+    # elif args.tag.lower().count('v2'):
+    #   reduceType = 'chaNewFix'
+    # else:
+    #   log.warning('tag does not refer to a skim, not plotting to prevent confusing output')
+    #   exit(0)
+
+    reduceType = 'FINALV1'
+
+
+
+
 
     # reduceType = 'chaD'
     # if args.year == '2017' or args.year == '2016':
@@ -340,7 +364,14 @@ for year in years:
     log.info("using reduceType " + reduceType)
 
 
-    chamidEst = chamidWeight(year)
+    # if args.tag.lower().count('v1'): ver = 'V1'
+    # elif args.tag.lower().count('v2'): ver = 'V2'
+    # else: ver = 'NaN'
+
+    # chamidEst = chamidWeight(year, version = ver)
+
+    chamidEst = chamidWeight(year, version = '')
+
 
     for sample in sum(stack, []):
       # ddEst = ssosWeight(year, sample.isData)
@@ -353,14 +384,29 @@ for year in years:
       else:
         selection = args.selection
       
+
+
+
       if args.tag.count('DCorr'):
-        if year == '2016': chamidCorr = 0.966
-        elif year == '2017': chamidCorr = 1.509
-        elif year == '2018': chamidCorr = 1.515
+        if year == '2016': chamidCorr = 0.921
+        elif year == '2017': chamidCorr = 1.46
+        elif year == '2018': chamidCorr = 1.451
         else: 
           log.warning('invalid year '+ year + 'for charge misId CF')
       else:
         chamidCorr = 1.
+
+
+# new ones
+# 2016 CF: 0.921   
+# 2017 CF: 1.46
+# 2018 CF: 1.451
+
+
+
+        # if year == '2016': chamidCorr = 0.966
+        # elif year == '2017': chamidCorr = 1.509
+        # elif year == '2018': chamidCorr = 1.515
 
       cutString, passingFunctions = cutStringAndFunctions(selection, args.channel)
 
